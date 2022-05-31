@@ -1,0 +1,41 @@
+cff-version: 1.2.0
+message: "If you use this repository, please cite it as below."
+authors:
+- family-names: "Hug"
+  given-names: "David"
+  orcid: "https://orcid.org/0000-0002-4430-3877"
+- family-names: "Bänninger"
+  given-names: "Philipp"
+  orcid: "https://orcid.org/0000-0002-2295-1689"
+- family-names: "Alzugaray"
+  given-names: "Ignacio"
+  orcid: "https://orcid.org/0000-0002-7121-0000"
+- family-names: "Chli"
+  given-names: "Margarita"
+  orcid: "https://orcid.org/0000-0001-5611-7492"
+title: "HyperSLAM"
+url: "https://github.com/VIS4ROB-lab/HyperSLAM"
+preferred-citation:
+  type: article
+  authors:
+  - family-names: "Hug"
+    given-names: "David"
+    orcid: "https://orcid.org/0000-0002-4430-3877"
+  - family-names: "Bänninger"
+    given-names: "Philipp"
+    orcid: "https://orcid.org/0000-0002-2295-1689"
+  - family-names: "Alzugaray"
+    given-names: "Ignacio"
+    orcid: "https://orcid.org/0000-0002-7121-0000"
+  - family-names: "Chli"
+    given-names: "Margarita"
+    orcid: "https://orcid.org/0000-0001-5611-7492"
+  doi: "10.1109/LRA.2022.3173705"
+  journal: "IEEE Robotics and Automation Letters"
+  month: 7
+  start: 6455 # First page number
+  end: 6462 # Last page number
+  title: "Continuous-Time Stereo-Inertial Odometry"
+  issue: 3
+  volume: 7
+  year: 2022
