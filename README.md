@@ -36,10 +36,34 @@
 
 ## About
 
-Almost there... We target July/August 2022 as the official release date of *Hyper*SLAM.
+Almost there... We target July/August 2022 as the official release date of *Hyper*SLAM. If you use this repository, please cite it as below.
+
+```
+@article{RAL2022Hug,
+    author={Hug, David and B\"anninger, Philipp and Alzugaray, Ignacio and Chli, Margarita},
+    journal={IEEE Robotics and Automation Letters},
+    title={Continuous-Time Stereo-Inertial Odometry},
+    year={2022},
+    volume={7},
+    number={3},
+    pages={6455-6462},
+    doi={10.1109/LRA.2022.3173705}
+}
+```
+
+## Literature
+
+1. [Continuous-Time Stereo-Inertial Odometry, Hug et al. (2022)](https://ieeexplore.ieee.org/document/9772323)
+2. [HyperSLAM: A Generic and Modular Approach to Sensor Fusion and Simultaneous<br /> Localization And Mapping in Continuous-Time, Hug and Chli (2020)](https://ieeexplore.ieee.org/document/9320417)
+3. [Efficient Derivative Computation for Cumulative B-Splines on Lie Groups, Sommer et al. (2020)](https://ieeexplore.ieee.org/document/9157639)
+4. [A Micro Lie Theory for State Estimation in Robotics, Solà et al. (2018)](https://arxiv.org/abs/1812.01537)
+5. [A Primer on the Differential Calculus of 3D Orientations, Bloesch et al. (2016)](https://arxiv.org/abs/1606.05285)
+6. [A Generic Camera Model and Calibration Method for Conventional,<br /> Wide-Angle, and Fish-Eye Lenses, Kannala and Brandt (2006)](https://ieeexplore.ieee.org/document/1642666)
+7. [Single View Point Omnidirectional Camera Calibration from Planar Grids, Mei and Rives (2007)](https://ieeexplore.ieee.org/document/4209702)
 
 ### Updates
 
+19.07.22 Initial release of [*Hyper*State](https://github.com/VIS4ROB-lab/HyperState) submodule.<br/>
 17.06.22 Initial release of [*Hyper*Variables](https://github.com/VIS4ROB-lab/HyperVariables) submodule.
 
 ### Contact
