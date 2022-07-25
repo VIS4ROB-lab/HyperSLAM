@@ -63,6 +63,7 @@ Almost there... We target July/August 2022 as the official release date of *Hype
 
 ### Updates
 
+25.07.22 Initial release of [*Hyper*Sensors](https://github.com/VIS4ROB-lab/HyperSensors) submodule.<br/>
 19.07.22 Initial release of [*Hyper*State](https://github.com/VIS4ROB-lab/HyperState) submodule.<br/>
 17.06.22 Initial release of [*Hyper*Variables](https://github.com/VIS4ROB-lab/HyperVariables) submodule.
 
