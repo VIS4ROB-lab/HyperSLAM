@@ -22,7 +22,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/VIS4ROB-lab/HyperSLAM">
-    <img src="images/emblem.png" alt="" style="width: 150px;">
+    <img src="https://drive.google.com/uc?export=view&id=1UAFr3tepqKwdnTomhKaeI2eIag3HOISY" alt="" style="width: 150px;">
   </a>
 
 <h2><em>Hyper</em>SLAM</h2>
