@@ -27,7 +27,7 @@ class AbstractLandmark {
   };
 
   using Parameters = std::vector<AbstractVariable<Scalar>*>;
-  using ConstParameters = std::vector<AbstractVariable<const Scalar>*>;
+  using ConstParameters = std::vector<const AbstractVariable<Scalar>*>;
   using Observations = std::set<const AbstractObservation*, ObservationCompare>;
 
   /// Default destructor.

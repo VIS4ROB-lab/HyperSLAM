@@ -8,7 +8,13 @@
 
 namespace hyper {
 
-LandmarkObservation::~LandmarkObservation() = default;
+auto LandmarkObservation::parameters() const -> ConstParameters {
+  return landmark().parameters();
+}
+
+auto LandmarkObservation::parameters() -> Parameters {
+  return landmark().parameters();
+}
 
 auto LandmarkObservation::landmark() const -> const AbstractLandmark& {
   DCHECK(landmark_ != nullptr);
@@ -17,14 +23,6 @@ auto LandmarkObservation::landmark() const -> const AbstractLandmark& {
 
 auto LandmarkObservation::landmark() -> AbstractLandmark& {
   return const_cast<AbstractLandmark&>(std::as_const(*this).landmark());
-}
-
-auto LandmarkObservation::parameters() const -> ConstParameters {
-  return landmark().parameters();
-}
-
-auto LandmarkObservation::parameters() -> Parameters {
-  return landmark().parameters();
 }
 
 LandmarkObservation::LandmarkObservation(AbstractLandmark& landmark)

@@ -18,7 +18,7 @@ namespace hyper {
 class AbstractObservation {
  public:
   using Parameters = std::vector<AbstractVariable<Scalar>*>;
-  using ConstParameters = std::vector<AbstractVariable<const Scalar>*>;
+  using ConstParameters = std::vector<const AbstractVariable<Scalar>*>;
 
   /// Virtual default destructor.
   virtual ~AbstractObservation() = default;

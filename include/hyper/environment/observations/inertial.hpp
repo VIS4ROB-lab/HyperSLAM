@@ -6,6 +6,7 @@
 #include <glog/logging.h>
 
 #include "hyper/environment/observations/abstract.hpp"
+#include "hyper/messages/measurements/inertial.hpp"
 #include "hyper/variables/gravity.hpp"
 
 namespace hyper {
@@ -20,11 +21,9 @@ class InertialObservation final
   /// Constructor from measurement and gravity.
   /// \param measurement Input measurement.
   /// \param gravity Input gravity.
-  InertialObservation(const Measurement& measurement, Scalar* gravity)
+  InertialObservation(const Measurement& measurement, Eigen::Ref<Gravity<Scalar>>& gravity)
       : measurement_{measurement},
-        gravity_{gravity} {
-    DCHECK(gravity_ != nullptr);
-  }
+        gravity_{gravity.data()} {}
 
   /// Measurement accessor.
   /// \return Measurement.
@@ -38,21 +37,33 @@ class InertialObservation final
     return const_cast<Measurement&>(std::as_const(*this).measurement());
   }
 
+  /// Parameters accessor.
+  /// \return Parameters.
+  [[nodiscard]] auto parameters() const -> ConstParameters final {
+    return {&gravity_};
+  }
+
+  /// Parameters modifier.
+  /// \return Parameters.
+  [[nodiscard]] auto parameters() -> Parameters final {
+    return {&gravity_};
+  }
+
   /// Gravity accessor.
   /// \return Gravity.
-  [[nodiscard]] auto gravity() const -> Eigen::Map<const Gravity<Scalar>> {
-    return Eigen::Map<const Gravity<Scalar>>{gravity_};
+  [[nodiscard]] auto gravity() const -> const Eigen::Map<Gravity<Scalar>>& {
+    return gravity_;
   }
 
   /// Gravity modifier.
   /// \return Gravity.
-  [[nodiscard]] auto gravity() -> Eigen::Map<Gravity<Scalar>> {
-    return Eigen::Map<Gravity<Scalar>>{gravity_};
+  [[nodiscard]] auto gravity() -> Eigen::Map<Gravity<Scalar>>& {
+    return const_cast<Eigen::Map<Gravity<Scalar>>&>(std::as_const(*this).gravity());
   }
 
  private:
-  Measurement measurement_; ///< Measurement.
-  Scalar* gravity_;         ///< Gravity.
+  Measurement measurement_;             ///< Measurement.
+  Eigen::Map<Gravity<Scalar>> gravity_; ///< Gravity.
 };
 
 } // namespace hyper

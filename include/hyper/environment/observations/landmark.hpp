@@ -15,8 +15,13 @@ class LandmarkObservation
   /// Deleted default constructor.
   LandmarkObservation() = delete;
 
-  /// Default destructor.
-  ~LandmarkObservation() override;
+  /// Parameters accessor.
+  /// \return Parameters.
+  [[nodiscard]] auto parameters() const -> ConstParameters final;
+
+  /// Parameters modifier.
+  /// \return Parameters.
+  [[nodiscard]] auto parameters() -> Parameters final;
 
   /// Landmark accessor.
   /// \return Landmark.
@@ -25,14 +30,6 @@ class LandmarkObservation
   /// Landmark modifier.
   /// \return Landmark.
   [[nodiscard]] virtual auto landmark() -> AbstractLandmark&;
-
-  /// Parameters accessor.
-  /// \return Parameters.
-  [[nodiscard]] auto parameters() const -> ConstParameters final;
-
-  /// Parameters modifier.
-  /// \return Parameters.
-  [[nodiscard]] auto parameters() -> Parameters final;
 
  protected:
   /// Constructor from landmark.
