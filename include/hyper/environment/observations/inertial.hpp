@@ -21,9 +21,9 @@ class InertialObservation final
   /// Constructor from measurement and gravity.
   /// \param measurement Input measurement.
   /// \param gravity Input gravity.
-  InertialObservation(const Measurement& measurement, Eigen::Ref<Gravity<Scalar>>& gravity)
+  InertialObservation(const Measurement& measurement, Scalar* gravity)
       : measurement_{measurement},
-        gravity_{gravity.data()} {}
+        gravity_{gravity} {}
 
   /// Measurement accessor.
   /// \return Measurement.
