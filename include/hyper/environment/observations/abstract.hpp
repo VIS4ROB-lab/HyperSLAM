@@ -17,30 +17,27 @@ namespace hyper {
 
 class AbstractObservation {
  public:
-  /// Deleted default constructor.
-  AbstractObservation() = delete;
+  using Parameters = std::vector<AbstractVariable<Scalar>*>;
+  using ConstParameters = std::vector<AbstractVariable<const Scalar>*>;
 
   /// Virtual default destructor.
-  virtual ~AbstractObservation();
+  virtual ~AbstractObservation() = default;
 
   /// Measurement accessor.
   /// \return Measurement.
-  [[nodiscard]] auto measurement() const -> const AbstractMeasurement&;
+  [[nodiscard]] virtual auto measurement() const -> const AbstractMeasurement& = 0;
 
   /// Measurement modifier.
   /// \return Measurement.
-  [[nodiscard]] auto measurement() -> AbstractMeasurement&;
+  [[nodiscard]] virtual auto measurement() -> AbstractMeasurement& = 0;
 
-  /// Collects the memory blocks.
-  /// \return Memory blocks.
-  [[nodiscard]] virtual auto memoryBlocks() const -> MemoryBlocks<Scalar>;
+  /// Parameters accessor.
+  /// \return Parameters.
+  [[nodiscard]] virtual auto parameters() const -> ConstParameters = 0;
 
- protected:
-  /// Constructor from measurement.
-  /// \param measurement Measurement to use.
-  explicit AbstractObservation(std::unique_ptr<AbstractMeasurement>&& measurement);
-
-  std::unique_ptr<AbstractMeasurement> measurement_; ///< Measurement.
+  /// Parameters modifier.
+  /// \return Parameters.
+  [[nodiscard]] virtual auto parameters() -> Parameters = 0;
 };
 
 } // namespace hyper

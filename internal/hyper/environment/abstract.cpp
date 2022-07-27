@@ -4,7 +4,7 @@
 #include <glog/logging.h>
 
 #include "hyper/environment/abstract.hpp"
-#include "hyper/environment/landmarks/absolute.hpp"
+#include "hyper/environment/landmarks/variable.hpp"
 #include "hyper/environment/observations/abstract.hpp"
 #include "hyper/environment/observations/visual.hpp"
 #include "hyper/messages/measurements/abstract.hpp"

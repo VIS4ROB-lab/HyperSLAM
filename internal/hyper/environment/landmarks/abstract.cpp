@@ -25,20 +25,24 @@ auto AbstractLandmark::ObservationCompare::operator()(const AbstractObservation*
   return ExtractPivot(lhs) < ExtractPivot(rhs);
 }
 
-auto AbstractLandmark::parameters() const -> const Parameters& {
-  return parameters_;
-}
-
 auto AbstractLandmark::observations() const -> const Observations& {
   return observations_;
 }
 
-auto AbstractLandmark::range() const -> Range<Stamp, BoundaryPolicy::INCLUSIVE> {
-  return {(*observations_.begin())->measurement().stamp(), (*observations_.rbegin())->measurement().stamp()};
+auto AbstractLandmark::addObservation(const AbstractObservation& observation) const -> void {
+  DCHECK(!observations_.contains(&observation));
+  observations_.insert(&observation);
 }
 
-AbstractLandmark::AbstractLandmark(const Size& num_parameters)
-    : parameters_{num_parameters},
-      observations_{} {}
+auto AbstractLandmark::removeObservation(const AbstractObservation& observation) const -> void {
+  DCHECK(observations_.contains(&observation));
+  observations_.erase(&observation);
+}
+
+auto AbstractLandmark::range() const -> Range<Stamp, BoundaryPolicy::INCLUSIVE> {
+  const auto itr_begin = observations().begin();
+  const auto itr_rbegin = observations().rbegin();
+  return {(*itr_begin)->measurement().stamp(), (*itr_rbegin)->measurement().stamp()};
+}
 
 } // namespace hyper

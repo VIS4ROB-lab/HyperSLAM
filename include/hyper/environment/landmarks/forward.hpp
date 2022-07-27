@@ -9,13 +9,14 @@ namespace hyper {
 
 class AbstractLandmark;
 
-class PositionLandmark;
+template <typename TVariable>
+class VariableLandmark;
 
-template <>
-struct Traits<PositionLandmark> {
+template <typename TVariable>
+struct Traits<VariableLandmark<TVariable>> {
   // Constants.
-  static constexpr auto kPositionOffset = 0;
-  static constexpr auto kNumParameterBlocks = kPositionOffset + 1;
+  static constexpr auto kVariableOffset = 0;
+  static constexpr auto kNumParameterBlocks = kVariableOffset + 1;
 };
 
 } // namespace hyper

@@ -3,63 +3,53 @@
 
 #pragma once
 
+#include "hyper/environment/landmarks/variable.hpp"
 #include "hyper/environment/observations/landmark.hpp"
 #include "hyper/messages/measurements/visual.hpp"
 
 namespace hyper {
 
-class PixelObservation final
+template <typename TMeasurement>
+class VisualObservation final
     : public LandmarkObservation {
  public:
-  // Definitions.
-  using Measurement = PixelMeasurement;
-
   /// Constructor from measurement and landmark.
   /// \param measurement Measurement to use.
   /// \param landmark Landmark to use.
-  PixelObservation(std::unique_ptr<Measurement>&& measurement, const PositionLandmark& landmark);
-
-  /// Default destructor.
-  ~PixelObservation() final = default;
-
-  /// Measurement accessor.
-  /// \return Measurement.
-  [[nodiscard]] auto measurement() const -> const Measurement&;
-
-  /// Measurement modifier.
-  /// \return Measurement.
-  [[nodiscard]] auto measurement() -> Measurement&;
-
-  /// Retrieves the associated landmark.
-  /// \return Landmark.
-  [[nodiscard]] auto landmark() const -> const PositionLandmark&;
-};
-
-class BearingObservation final
-    : public LandmarkObservation {
- public:
-  // Definitions.
-  using Measurement = BearingMeasurement;
-
-  /// Constructor from measurement and landmark.
-  /// \param measurement Measurement to use.
-  /// \param landmark Landmark to use.
-  BearingObservation(std::unique_ptr<Measurement>&& measurement, const PositionLandmark& landmark);
-
-  /// Default destructor.
-  ~BearingObservation() final = default;
+  VisualObservation(const TMeasurement& measurement, PositionLandmark& landmark)
+      : LandmarkObservation{landmark},
+        measurement_{measurement} {}
 
   /// Measurement accessor.
   /// \return Measurement.
-  [[nodiscard]] auto measurement() const -> const Measurement&;
+  [[nodiscard]] auto measurement() const -> const TMeasurement& final {
+    return measurement_;
+  }
 
   /// Measurement modifier.
   /// \return Measurement.
-  [[nodiscard]] auto measurement() -> Measurement&;
+  [[nodiscard]] auto measurement() -> TMeasurement& final {
+    return const_cast<TMeasurement&>(std::as_const(*this).measurement());
+  }
 
-  /// Retrieves the associated landmark.
+  /// Landmark accessor.
   /// \return Landmark.
-  [[nodiscard]] auto landmark() const -> const PositionLandmark&;
+  [[nodiscard]] auto landmark() const -> const PositionLandmark& final {
+    DCHECK(landmark_ != nullptr);
+    return static_cast<const PositionLandmark&>(*landmark_); // NOLINT
+  }
+
+  /// Landmark accessor.
+  /// \return Landmark.
+  [[nodiscard]] auto landmark() -> PositionLandmark& final {
+    return const_cast<PositionLandmark&>(std::as_const(*this).landmark());
+  }
+
+ private:
+  TMeasurement measurement_; ///< Measurement.
 };
+
+using PixelObservation = VisualObservation<PixelMeasurement>;
+using BearingObservation = VisualObservation<BearingMeasurement>;
 
 } // namespace hyper

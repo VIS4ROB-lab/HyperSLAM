@@ -20,20 +20,26 @@ class LandmarkObservation
 
   /// Landmark accessor.
   /// \return Landmark.
-  [[nodiscard]] auto landmark() const -> const AbstractLandmark&;
+  [[nodiscard]] virtual auto landmark() const -> const AbstractLandmark&;
 
-  /// Collects the memory blocks.
-  /// \return Memory blocks.
-  [[nodiscard]] auto memoryBlocks() const -> MemoryBlocks<Scalar> final;
+  /// Landmark modifier.
+  /// \return Landmark.
+  [[nodiscard]] virtual auto landmark() -> AbstractLandmark&;
+
+  /// Parameters accessor.
+  /// \return Parameters.
+  [[nodiscard]] auto parameters() const -> ConstParameters final;
+
+  /// Parameters modifier.
+  /// \return Parameters.
+  [[nodiscard]] auto parameters() -> Parameters final;
 
  protected:
-  /// Constructor from measurement and landmark.
-  /// \param measurement Measurement to use.
+  /// Constructor from landmark.
   /// \param landmark Landmark to use.
-  LandmarkObservation(std::unique_ptr<AbstractMeasurement>&& measurement, const AbstractLandmark& landmark);
+  explicit LandmarkObservation(AbstractLandmark& landmark);
 
- private:
-  const AbstractLandmark* landmark_; ///< Landmark.
+  AbstractLandmark* landmark_; ///< Landmark.
 };
 
 } // namespace hyper

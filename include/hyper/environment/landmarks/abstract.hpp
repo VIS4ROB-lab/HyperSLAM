@@ -16,7 +16,7 @@
 namespace hyper {
 
 class AbstractLandmark {
- private:
+ public:
   struct ObservationCompare {
     using is_transparent = std::true_type;
     using Pivot = std::pair<Stamp, const Sensor*>;
@@ -26,9 +26,8 @@ class AbstractLandmark {
     auto operator()(const AbstractObservation* lhs, const AbstractObservation* rhs) const -> bool;
   };
 
- public:
-  using Size = std::size_t;
-  using Parameters = CompositeVariable<Scalar>;
+  using Parameters = std::vector<AbstractVariable<Scalar>*>;
+  using ConstParameters = std::vector<AbstractVariable<const Scalar>*>;
   using Observations = std::set<const AbstractObservation*, ObservationCompare>;
 
   /// Default destructor.
@@ -36,22 +35,32 @@ class AbstractLandmark {
 
   /// Parameters accessor.
   /// \return Parameters.
-  [[nodiscard]] auto parameters() const -> const Parameters&;
+  [[nodiscard]] virtual auto parameters() const -> ConstParameters = 0;
+
+  /// Parameters modifier.
+  /// \return Parameters.
+  [[nodiscard]] virtual auto parameters() -> Parameters = 0;
 
   /// Accessor for the landmark observations.
   /// \return Constant reference to associated observations.
   auto observations() const -> const Observations&;
+
+  /// Adds an observation to this landmark.
+  /// \param observation Observation to added.
+  auto addObservation(const AbstractObservation& observation) const -> void;
+
+  /// Removes an observation from this landmark.
+  /// \param observation Observation to remove.
+  auto removeObservation(const AbstractObservation& observation) const -> void;
 
   /// Retrieves the observation range.
   /// \return Observation range.
   auto range() const -> Range<Stamp, BoundaryPolicy::INCLUSIVE>;
 
  protected:
-  /// Constructor from number of parameters.
-  /// \param num_variables Number of parameters.
-  explicit AbstractLandmark(const Size& num_parameters);
+  /// Default constructor.
+  AbstractLandmark() = default;
 
-  Parameters parameters_;             ///< Parameters.
   mutable Observations observations_; ///< Observations.
 };
 

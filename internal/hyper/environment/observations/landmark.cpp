@@ -15,13 +15,19 @@ auto LandmarkObservation::landmark() const -> const AbstractLandmark& {
   return *landmark_;
 }
 
-auto LandmarkObservation::memoryBlocks() const -> MemoryBlocks<Scalar> {
-  return landmark().parameters().memoryBlocks();
+auto LandmarkObservation::landmark() -> AbstractLandmark& {
+  return const_cast<AbstractLandmark&>(std::as_const(*this).landmark());
 }
 
-LandmarkObservation::LandmarkObservation(std::unique_ptr<AbstractMeasurement>&& measurement, const AbstractLandmark& landmark)
-    : AbstractObservation{std::move(measurement)},
-      landmark_{&landmark} {
+auto LandmarkObservation::parameters() const -> ConstParameters {
+  return landmark().parameters();
 }
+
+auto LandmarkObservation::parameters() -> Parameters {
+  return landmark().parameters();
+}
+
+LandmarkObservation::LandmarkObservation(AbstractLandmark& landmark)
+    : landmark_{&landmark} {}
 
 } // namespace hyper

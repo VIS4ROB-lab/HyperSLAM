@@ -14,7 +14,7 @@
 
 #include "hyper/definitions.hpp"
 #include "hyper/environment/landmarks/abstract.hpp"
-#include "hyper/environment/observations/abstract.hpp"
+#include "hyper/environment/observations/visual.hpp"
 #include "hyper/variables/composite.hpp"
 
 namespace hyper {
