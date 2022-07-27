@@ -21,16 +21,14 @@ class Environment final
 
   /// Transformation accessor.
   /// \return Transformation.
-  [[nodiscard]] auto transformation() const -> Eigen::Map<const TManifold> {
-    auto address = parameters().variable(Traits<Environment>::kTransformationOffset).memory().address;
-    return Eigen::Map<const TManifold>{address};
+  [[nodiscard]] auto transformation() const -> const TManifold& {
+    return static_cast<const TManifold&>(parameters().variable(Traits<Environment>::kTransformationOffset)); // NOLINT
   }
 
   /// Transformation modifier.
   /// \return Transformation.
-  auto transformation() -> Eigen::Map<TManifold> {
-    auto address = parameters().variable(Traits<Environment>::kTransformationOffset).memory().address;
-    return Eigen::Map<TManifold>{address};
+  auto transformation() -> TManifold& {
+    return const_cast<TManifold&>(std::as_const(*this).transformation());
   }
 };
 

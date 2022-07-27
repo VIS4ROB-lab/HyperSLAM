@@ -9,15 +9,15 @@ namespace hyper {
 
 class AbstractObservation;
 
-template <typename>
-class ManifoldObservation;
-
-template <typename>
-class InertialObservation;
-
 class LandmarkObservation;
 
 template <typename>
 class VisualObservation;
+
+template <typename>
+class InertialObservation;
+
+template <typename>
+class ManifoldObservation;
 
 } // namespace hyper

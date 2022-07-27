@@ -8,8 +8,6 @@
 #include "hyper/environment/observations/abstract.hpp"
 #include "hyper/environment/observations/visual.hpp"
 #include "hyper/messages/measurements/abstract.hpp"
-#include "hyper/sensors/camera.hpp"
-#include "hyper/variables/bearing.hpp"
 #include "hyper/variables/gravity.hpp"
 
 namespace hyper {
@@ -30,14 +28,12 @@ auto AbstractEnvironment::parameters() const -> const Parameters& {
   return parameters_;
 }
 
-auto AbstractEnvironment::gravity() const -> Eigen::Map<const Gravity<Scalar>> {
-  auto address = parameters().variable(Traits<AbstractEnvironment>::kGravityOffset).memory().address;
-  return Eigen::Map<const Gravity<Scalar>>{address};
+auto AbstractEnvironment::gravity() const -> const Gravity<Scalar>& {
+  return static_cast<const Gravity<Scalar>&>(parameters().variable(Traits<AbstractEnvironment>::kGravityOffset)); // NOLINT
 }
 
-auto AbstractEnvironment::gravity() -> Eigen::Map<Gravity<Scalar>> {
-  auto address = parameters().variable(Traits<AbstractEnvironment>::kGravityOffset).memory().address;
-  return Eigen::Map<Gravity<Scalar>>{address};
+auto AbstractEnvironment::gravity() -> Gravity<Scalar>& {
+  return const_cast<Gravity<Scalar>&>(std::as_const(*this).gravity());
 }
 
 auto AbstractEnvironment::landmarks() const -> const Landmarks& {

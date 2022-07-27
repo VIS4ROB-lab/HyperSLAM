@@ -44,11 +44,11 @@ class AbstractEnvironment {
 
   /// Gravity accessor.
   /// \return Gravity.
-  [[nodiscard]] auto gravity() const -> Eigen::Map<const Gravity<Scalar>>;
+  [[nodiscard]] auto gravity() const -> const Gravity<Scalar>&;
 
   /// Gravity modifier.
   /// \return Gravity.
-  auto gravity() -> Eigen::Map<Gravity<Scalar>>;
+  auto gravity() -> Gravity<Scalar>&;
 
   /// Landmark accessor.
   /// \return Landmarks.
