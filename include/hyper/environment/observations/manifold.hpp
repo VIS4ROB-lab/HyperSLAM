@@ -4,6 +4,7 @@
 #pragma once
 
 #include "hyper/environment/observations/abstract.hpp"
+#include "hyper/messages/measurements/variable.hpp"
 
 namespace hyper {
 
@@ -15,24 +16,36 @@ class ManifoldObservation final
   using Measurement = ManifoldMeasurement<TManifold>;
 
   /// Constructor from measurement.
-  /// \param measurement Measurement to use.
-  explicit ManifoldObservation(std::unique_ptr<Measurement>&& measurement)
-      : AbstractObservation{std::move(measurement)} {}
-
-  /// Default destructor.
-  ~ManifoldObservation() final = default;
+  /// \param measurement Input measurement.
+  explicit ManifoldObservation(const Measurement& measurement)
+      : measurement_{measurement} {}
 
   /// Measurement accessor.
   /// \return Measurement.
-  [[nodiscard]] auto measurement() const -> const Measurement& {
-    return static_cast<const Measurement&>(AbstractObservation::measurement()); // NOLINT
+  [[nodiscard]] auto measurement() const -> const Measurement& final {
+    return measurement_;
   }
 
   /// Measurement modifier.
   /// \return Measurement.
-  [[nodiscard]] auto measurement() -> Measurement& {
+  [[nodiscard]] auto measurement() -> Measurement& final {
     return const_cast<Measurement&>(std::as_const(*this).measurement());
   }
+
+  /// Parameters accessor.
+  /// \return Parameters.
+  [[nodiscard]] auto parameters() const -> ConstParameters final {
+    return {};
+  }
+
+  /// Parameters modifier.
+  /// \return Parameters.
+  [[nodiscard]] auto parameters() -> Parameters final {
+    return {};
+  }
+
+ private:
+  Measurement measurement_; ///< Measurement.
 };
 
 } // namespace hyper

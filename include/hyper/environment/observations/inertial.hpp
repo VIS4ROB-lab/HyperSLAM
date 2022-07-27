@@ -18,42 +18,41 @@ class InertialObservation final
   using Measurement = InertialMeasurement<TManifold>;
 
   /// Constructor from measurement and gravity.
-  /// \param measurement Measurement to use.
-  /// \param gravity Gravity data.
-  InertialObservation(std::unique_ptr<Measurement>&& measurement, const Scalar* gravity)
-      : AbstractObservation{std::move(measurement)}, gravity_{gravity} {
+  /// \param measurement Input measurement.
+  /// \param gravity Input gravity.
+  InertialObservation(const Measurement& measurement, Scalar* gravity)
+      : measurement_{measurement},
+        gravity_{gravity} {
     DCHECK(gravity_ != nullptr);
   }
 
-  /// Default destructor.
-  ~InertialObservation() final = default;
-
   /// Measurement accessor.
   /// \return Measurement.
-  [[nodiscard]] auto measurement() const -> const Measurement& {
-    return static_cast<const Measurement&>(AbstractObservation::measurement()); // NOLINT
+  [[nodiscard]] auto measurement() const -> const Measurement& final {
+    return measurement_;
   }
 
   /// Measurement modifier.
   /// \return Measurement.
-  [[nodiscard]] auto measurement() -> Measurement& {
+  [[nodiscard]] auto measurement() -> Measurement& final {
     return const_cast<Measurement&>(std::as_const(*this).measurement());
   }
 
-  /// Collects the memory blocks.
-  /// \return Memory blocks.
-  [[nodiscard]] auto memoryBlocks() const -> MemoryBlocks<Scalar> final {
-    return {{const_cast<Scalar*>(gravity_), Traits<Gravity<Scalar>>::kNumParameters}};
-  }
-
-  /// Fetch the gravity vector.
-  /// \return Pointer to gravity vector.
+  /// Gravity accessor.
+  /// \return Gravity.
   [[nodiscard]] auto gravity() const -> Eigen::Map<const Gravity<Scalar>> {
     return Eigen::Map<const Gravity<Scalar>>{gravity_};
   }
 
+  /// Gravity modifier.
+  /// \return Gravity.
+  [[nodiscard]] auto gravity() -> Eigen::Map<Gravity<Scalar>> {
+    return Eigen::Map<Gravity<Scalar>>{gravity_};
+  }
+
  private:
-  const Scalar* gravity_; ///< Gravity data.
+  Measurement measurement_; ///< Measurement.
+  Scalar* gravity_;         ///< Gravity.
 };
 
 } // namespace hyper

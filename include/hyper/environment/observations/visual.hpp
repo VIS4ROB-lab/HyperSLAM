@@ -14,8 +14,8 @@ class VisualObservation final
     : public LandmarkObservation {
  public:
   /// Constructor from measurement and landmark.
-  /// \param measurement Measurement to use.
-  /// \param landmark Landmark to use.
+  /// \param measurement Input measurement.
+  /// \param landmark Input landmark.
   VisualObservation(const TMeasurement& measurement, PositionLandmark& landmark)
       : LandmarkObservation{landmark},
         measurement_{measurement} {}

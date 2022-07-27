@@ -42,7 +42,7 @@ class VariableLandmark final
   /// Variable modifier.
   /// \return Variable.
   auto variable() -> TVariable& {
-    return const_cast<TVariable&>(std::as_const(*this).position());
+    return const_cast<TVariable&>(std::as_const(*this).variable());
   }
 
  private:
