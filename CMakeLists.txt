@@ -66,6 +66,11 @@ if (NOT yaml-cpp_FOUND)
     find_package(yaml-cpp REQUIRED)
 endif ()
 
+# Find Ceres.
+if (NOT Ceres_FOUND)
+    find_package(Ceres REQUIRED)
+endif ()
+
 # Add includes.
 target_include_directories(
         ${PROJECT_NAME}
@@ -94,7 +99,8 @@ target_link_libraries(
         ${sensor_msgs_LIBRARIES}
         ${cv_bridge_LIBRARIES}
         ${OpenCV_LIBRARIES}
-        yaml-cpp
+        ${yaml-cpp_LIBRARIES}
+        Ceres::ceres
 )
 
 # Compile HyperSLAM.
