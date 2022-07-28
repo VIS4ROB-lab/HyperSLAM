@@ -24,13 +24,13 @@ class VariableLandmark final
   /// Parameters accessor.
   /// \return Parameters.
   [[nodiscard]] auto parameters() const -> ConstParameters final {
-    return std::as_const(variable_).memory();
+    return {&variable_};
   }
 
   /// Parameters modifier.
   /// \return Parameters.
   [[nodiscard]] auto parameters() -> Parameters final {
-    return variable_.memory();
+    return {&variable_};
   }
 
   /// Variable accessor.
