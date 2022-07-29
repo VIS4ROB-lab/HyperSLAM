@@ -18,7 +18,7 @@ target_compile_options(${PROJECT_NAME} INTERFACE -Wall -Wextra -Wnon-virtual-dto
 target_compile_options(${PROJECT_NAME} INTERFACE -std=c++2a -march=native -O3 -fconcepts)
 
 # Fetch (external) content.
-FetchContent_Declare(HyperSensors GIT_REPOSITORY https://github.com/VIS4ROB-lab/HyperSensors.git GIT_TAG ef63793c10af46f393d5d7351ddad64fd99495d0)
+FetchContent_Declare(HyperSensors GIT_REPOSITORY https://github.com/VIS4ROB-lab/HyperSensors.git GIT_TAG 8dd31f443a59c78211aecdc5759af0536702a839)
 FetchContent_MakeAvailable(HyperSensors)
 
 # Find Eigen target if not present.
