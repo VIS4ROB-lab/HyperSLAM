@@ -81,8 +81,8 @@ auto Manifold<IMU, OptimizerSuite::CERES>::setAccelerometerBiasConstant(const bo
 }
 
 auto Manifold<IMU, OptimizerSuite::CERES>::manifolds() const -> Pointers<ceres::Manifold> {
-  const auto num_gyroscope_bias_manifolds = sensor().gyroscopeBias().variables().size();
-  const auto num_accelerometer_bias_manifolds = sensor().accelerometerBias().variables().size();
+  const auto num_gyroscope_bias_manifolds = sensor().gyroscopeBias().elements().size();
+  const auto num_accelerometer_bias_manifolds = sensor().accelerometerBias().elements().size();
   return assembleManifolds(num_gyroscope_bias_manifolds, num_accelerometer_bias_manifolds);
 }
 
