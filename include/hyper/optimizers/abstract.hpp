@@ -12,8 +12,8 @@
 #include "hyper/yaml/forward.hpp"
 
 #include "hyper/definitions.hpp"
+#include "hyper/environment/environment.hpp"
 #include "hyper/environment/observations/visual.hpp"
-#include "hyper/range.hpp"
 #include "hyper/state/abstract.hpp"
 #include "hyper/state/policies/abstract.hpp"
 #include "hyper/variables/groups/se3.hpp"
@@ -37,6 +37,7 @@ class AbstractOptimizer {
   [[nodiscard]] auto window() const -> const Window&;
 
   /// Sets the optimization window.
+  /// \param window Input optimization window.
   auto setWindow(const Window& window) -> void;
 
   /// Adds a sensor.
@@ -80,7 +81,7 @@ class AbstractOptimizer {
   /// \param observation Input observation.
   virtual auto add(BearingObservation& observation) -> void = 0;
 
-  /// Adds a Pixel Observation.
+  /// Adds an observation.
   /// \param observation Input observation.
   virtual auto add(PixelObservation& observation) -> void = 0;
 
@@ -96,59 +97,7 @@ class AbstractOptimizer {
   virtual auto optimize() -> void = 0;
 
  protected:
-  /// Constructor from YAML node.
-  /// \param yaml_node Input YAML node.
-  explicit AbstractOptimizer(const YAML::Node& yaml_node);
-
-  /// Rebases time stamps.
-  /// \return Rebased time stamp.
-  [[nodiscard]] auto rebase(const Stamp& stamp) const -> Stamp;
-
-  /// Processes a message.
-  /// \param message Input message.
-  auto process(const AbstractMessage& message) -> void;
-
-  /// Processes visual tracks.
-  /// \param message Input message.
-  auto process(const VisualTracks& message) -> void;
-
-  /// Processes an inertial measurement.
-  /// \param message Input message.
-  auto process(const InertialMeasurement<Manifold>& message) -> void;
-
-  /// Processes an absolute measurement.
-  /// \param message Input message.
-  auto process(const ManifoldMeasurement<Manifold>& message) -> void;
-
-  /// Initializes the state.
-  /// \param range Input state range.
-  virtual auto initializeState(const Range& range) -> void = 0;
-
-  /// Updates the state parameters.
-  virtual auto updateStateParameters() -> void = 0;
-
-  /// Extrapolates the state.
-  /// \param separation Temporal separation between stamped state parameters.
-  /// \param n Number of requested extrapolated state parameters.
-  virtual auto extrapolateState(const Stamp& separation, int n) -> void = 0;
-
-  /// Updates the parametrization of the active state variables.
-  virtual auto updateStateParametrization() -> void = 0;
-
-  /// Updates the (active) landmarks.
-  virtual auto updateLandmarks() -> void = 0;
-
-  /// Updates the gyroscope bias.
-  /// \param imu Input IMU.
-  /// \param range Input range.
-  virtual auto updateGyroscopeBias(IMU& imu, const Range& range) -> void = 0;
-
-  /// Updates the accelerometer bias.
-  /// \param imu Input IMU.
-  /// \param range Input range.
-  virtual auto updateAccelerometerBias(IMU& imu, const Range& range) -> void = 0;
-
-  struct StateParameterCompare {
+  struct StampedManifoldCompare {
     using is_transparent = std::true_type;
     auto operator()(const AbstractStamped<Stamp>* lhs, const AbstractStamped<Stamp>* rhs) const -> bool {
       return lhs->stamp() < rhs->stamp();
@@ -161,17 +110,78 @@ class AbstractOptimizer {
     }
   };
 
-  Stamp offset_;           ///< Initial offset.
-  Stamp state_separation_; ///< State separation.
-  Stamp max_window_;       ///< Maximum optimization window.
-  Window window_;          ///< Optimization window.
+  /// Constructor from YAML node.
+  /// \param yaml_node Input YAML node.
+  explicit AbstractOptimizer(const YAML::Node& yaml_node);
+
+  /// Environment modifier.
+  /// \return Environment.
+  [[nodiscard]] auto mutableEnvironment() -> Environment<Manifold>&;
+
+  /// State modifier.
+  /// \return State.
+  [[nodiscard]] auto mutableState() -> AbstractState&;
+
+  /// Rebases time stamps.
+  /// \return Rebased time stamp.
+  [[nodiscard]] auto rebase(const Stamp& stamp) const -> Stamp;
+
+  /// Processes a message.
+  /// \param message Input message.
+  auto process(const AbstractMessage& message) -> void;
+
+  /// Processes a message.
+  /// \param message Input message.
+  auto process(const VisualTracks& message) -> void;
+
+  /// Processes a message.
+  /// \param message Input message.
+  auto process(const InertialMeasurement<Manifold>& message) -> void;
+
+  /// Processes a message.
+  /// \param message Input message.
+  auto process(const ManifoldMeasurement<Manifold>& message) -> void;
+
+  /// Initializes the state.
+  /// \param range Input range.
+  virtual auto initializeState(const Range& range) -> void = 0;
+
+  /// Extrapolates the state.
+  /// \param stamp Separation between stamped state parameters.
+  /// \param n Number of extrapolated state parameters.
+  virtual auto extrapolateState(const Stamp& stamp, int n) -> void = 0;
+
+  /// Updates the state manifold.
+  virtual auto updateStateManifold() -> void = 0;
+
+  /// Updates the state.
+  virtual auto updateState() -> void = 0;
+
+  /// Updates the landmarks.
+  virtual auto updateLandmarks() -> void = 0;
+
+  /// Updates the gyroscope bias.
+  /// \param imu Input IMU.
+  /// \param range Input range.
+  virtual auto updateGyroscopeBias(IMU& imu, const Range& range) -> void = 0;
+
+  /// Updates the accelerometer bias.
+  /// \param imu Input IMU.
+  /// \param range Input range.
+  virtual auto updateAccelerometerBias(IMU& imu, const Range& range) -> void = 0;
+
+  Stamp root_stamp_;         ///< Root stamp.
+  Stamp default_separation_; ///< Default separation.
+
+  Window window_;    ///< Optimization window.
+  Stamp max_window_; ///< Maximum optimization window.
 
   std::unordered_set<Sensor*> sensors_;                ///< Sensors.
   std::unique_ptr<Environment<Manifold>> environment_; ///< Environment.
   std::unique_ptr<AbstractState> state_;               ///< State.
 
-  std::set<AbstractStamped<Stamp>*, StateParameterCompare> active_state_parameters_; ///< Set of active state parameters.
-  std::unordered_set<AbstractLandmark*> active_landmarks_;                           ///< Set of active landmarks.
+  std::set<AbstractStamped<Stamp>*, StampedManifoldCompare> active_state_parameters_; ///< Active state parameters.
+  std::unordered_set<AbstractLandmark*> active_landmarks_;                            ///< Active landmarks.
 };
 
 } // namespace hyper
