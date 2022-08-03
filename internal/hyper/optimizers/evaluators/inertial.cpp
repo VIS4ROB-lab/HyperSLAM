@@ -13,6 +13,7 @@ namespace hyper {
 template <>
 auto InertialEvaluator<SE3<Scalar>>::evaluate(const Query& query, DynamicJacobian<Scalar>* J_e) const -> Result {
   // Definitions.
+  using Gravity = Gravity<Scalar>;
   using GyroscopeIntrinsics = Traits<IMU>::GyroscopeIntrinsics;
   using AccelerometerIntrinsics = Traits<IMU>::AccelerometerIntrinsics;
   using Manifold = SE3<Scalar>;
@@ -36,11 +37,11 @@ auto InertialEvaluator<SE3<Scalar>>::evaluate(const Query& query, DynamicJacobia
 
   // Map parameters.
   const auto T_bs = Eigen::Map<const SE3<Scalar>>{p_ps[o_T_bs]};
-  const auto i_g = Eigen::Map<const Traits<IMU>::GyroscopeIntrinsics>{p_ps[o_i_g]};
-  const auto i_a = Eigen::Map<const Traits<IMU>::AccelerometerIntrinsics>{p_ps[o_i_a]};
-  const auto S_g = Eigen::Map<const Eigen::Matrix<double, 3, 3>>{p_ps[o_S_g]}; // TODO Improve.
-  const auto X_a = Eigen::Map<const Eigen::Matrix<double, 3, 3>>{p_ps[o_X_a]}; // TODO Improve.
-  const auto g_w = Eigen::Map<const Gravity<Scalar>>{p_ps[o_g_w]};
+  const auto i_g = Eigen::Map<const GyroscopeIntrinsics>{p_ps[o_i_g]};
+  const auto i_a = Eigen::Map<const AccelerometerIntrinsics>{p_ps[o_i_a]};
+  const auto S_g = Eigen::Map<const Eigen::Matrix<Scalar, 3, 3>>{p_ps[o_S_g]}; // TODO Improve.
+  const auto X_a = Eigen::Map<const Eigen::Matrix<Scalar, 3, 3>>{p_ps[o_X_a]}; // TODO Improve.
+  const auto g_w = Eigen::Map<const Gravity>{p_ps[o_g_w]};
 
   if (!J_e) {
     // Evaluate state.
