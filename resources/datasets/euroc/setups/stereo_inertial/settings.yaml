@@ -1,0 +1,148 @@
+Node: HyperSLAM
+
+# Systems
+System:
+
+  # Platform
+  name: System-0
+  system_type: MASTER
+  model: Asctec Firefly MAV
+
+  # Modules
+  modules:
+
+    - name: Module-0
+      threads: 1
+
+  # Sensors
+  sensors:
+
+    - type: CAMERA
+      name: MT9M034-0
+      model: MT9M034
+      module: Module-0
+      frontend: Frontend-0
+      topic: /cam0/image_raw
+
+      camera_type: PINHOLE # Model type.
+      shutter: GLOBAL # Shutter type.
+
+      rate: 200 # Rate in [Hz].
+
+      resolution: [ 752, 480 ] # Resolution in [pixel].
+
+      transformation: # Sensor to body transformation.
+        [ -0.007707179755532, 0.010499323370595, 0.701752800292141, 0.712301460668946, # Quaternion [qx, qy, qz, qw].
+          -0.0216401454975, -0.064676986768, 0.00981073058949 ]                        # Translation [px, py, pz].
+
+      intrinsics: # Intrinsic parameters.
+        [ 367.215, 248.375,  # Principal point [px, py] in [pixel].
+          458.654, 457.296 ] # Focal length [fx, fy] in [pixel].
+
+      distortion:
+        type: radial_tangential                    # Distortion type.
+        parameters: [ -0.28340811, 0.07395907,     # Radial parameters [k1, k2].
+                      1.76187114e-05, 0.00019359 ] # Tangential parameters [p1, p2].
+
+    - type: CAMERA
+      name: MT9M034-1
+      model: MT9M034
+      module: Module-0
+      frontend: Frontend-0
+      topic: /cam1/image_raw
+
+      camera_type: PINHOLE # Model type.
+      shutter: GLOBAL # Shutter type.
+
+      rate: 200 # Rate in [Hz].
+
+      resolution: [ 752, 480 ] # Resolution in [pixel].
+
+      transformation: # Sensor to body transformation.
+        [ -0.002550236745188, 0.015323927487975, 0.702486685782579, 0.711527321918909, # Quaternion [qx, qy, qz, qw].
+          -0.0198435579556, 0.0453689425024, 0.00786212447038 ]                        # Translation [px, py, pz].
+
+      intrinsics: # Intrinsics parameters.
+        [ 379.999, 255.238,  # Principal point [px, py] in [pixel].
+          457.587, 456.134 ] # Focal length [fx, fy] in [pixel].
+
+      distortion:
+        type: radial_tangential                      # Distortion type.
+        parameters: [ -0.28368365,  0.07451284,      # Radial parameters [k1, k2].
+                      -3.55590700e-05, -0.00010473 ] # Tangential parameters [p1, p2].
+
+    - type: IMU
+      name: ADIS16448-0
+      model: ADIS16448
+      module: Module-0
+      frontend: Frontend-1
+      topic: /imu0
+
+      rate: 200 # Rate in [Hz].
+
+      transformation: # Sensor to body transformation.
+        [ 0, 0, 0, 1, # Quaternion [qx, qy, qz, qw].
+          0, 0, 0 ]   # Translation [px, py, pz].
+
+      gyroscope_intrinsics: # Gyroscope intrinsics.
+        [ 1, 1, 1,  # Diagonal coefficients [c00, c11, c22].
+          0, 0, 0 ] # Off-diagonal coefficients [c10, c20, c21].
+
+      gyroscope_sensitivity: # Gyroscope sensitivity.
+        [ 0, 0, 0,  # 1st row [s00, s01, s02].
+          0, 0, 0,  # 2nd row [s10, s11, s12].
+          0, 0, 0 ] # 3rd row [s20, s21, s22].
+
+      gyroscope_noise_density: # Gyroscope noise density.
+        1.6968e-04 # Noise density in [rad / s / sqrt(Hz)].
+
+      accelerometer_intrinsics: # Accelerometer intrinsics.
+        [ 1, 1, 1,  # Diagonal coefficients [c00, c11, c22].
+          0, 0, 0 ] # Off-diagonal coefficients [c10, c20, c21].
+
+      accelerometer_axes_offsets: # Accelerometer axes offsets.
+        [ 0, 0, 0,  # 1st row [x0, y0, z0].
+          0, 0, 0,  # 2nd row [x1, y1, z1].
+          0, 0, 0 ] # 3rd row [x2, y2, z2].
+
+      accelerometer_noise_density: # Accelerometer noise density.
+        2.0000e-3 # Noise density in [m / s^2 / sqrt(Hz)].
+
+  frontends:
+
+    - type: VISUAL
+      name: Frontend-0
+      backend: Backend-0
+
+      max_queue_size: 20                  # Maximum message queue size.
+      max_num_tracks: 150                 # Maximum number of feature tracks.
+      min_track_separation: 30            # Minimum distance in pixel between tracks.
+      patch_size: 21                      # Patch size (in pixel) to be used in KLT feature tracker.
+      num_pyramid_levels: 3               # Number of pyramid levels to use in tracker.
+      min_track_quality: 0.01             # Minimum feature quality to allow tracking.
+      max_track_error: 0.5                # Maximum allowed pixel error between forward and backward tracking.
+      show_tracks: true                   # Enables visual output of feature tracks.
+
+    - type: INERTIAL
+      name: Frontend-1
+      backend: Backend-0
+      max_queue_size: 100
+
+  # Backends
+  backends:
+
+    - name: Backend-0
+      mode: window                        # Operation mode.
+      suite: ceres                        # Optimizer suite.
+      threads: 1                          # Optimization threads.
+      manifold: se3                       # Optimizable manifold.
+
+      representation: continuous          # Representation type.
+      time_constant: true                 # Sets the state time constant.
+      rotation_constant: false            # Sets the state rotation constant.
+      translation_constant: false         # Sets the state translation constant.
+
+      separation: 0.1                     # Default separation between (motion parametrizing) states.
+      min_separation: 0.05                # Minimum separation between states.
+      max_separation: 1.00                # Maximum separation between states.
+      max_window: 3.0                     # Maximum optimization window size.
