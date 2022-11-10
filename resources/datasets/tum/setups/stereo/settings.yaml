@@ -1,0 +1,108 @@
+Node: HyperSLAM
+
+# Systems
+System:
+
+  # Platform
+  name: System-0
+  system_type: MASTER
+  model: Asctec Firefly MAV
+
+  # Modules
+  modules:
+
+    - name: Module-0
+      threads: 1
+
+  # Sensors
+  sensors:
+
+    - type: CAMERA
+      name: MT9M034-0
+      model: MT9M034
+      module: Module-0
+      frontend: Frontend-0
+      topic: /cam0/image_raw
+
+      camera_type: PINHOLE # Model type.
+      shutter: GLOBAL # Shutter type.
+
+      rate: 20 # Rate in [Hz].
+
+      resolution: [ 1280, 1024 ] # Resolution in [pixel].
+
+      transformation: # Sensor to body transformation.
+        [-7.04978703e-01,  7.09212068e-01, -4.16328531e-04,  4.80592069e-03,
+         0.05250868,  0.0077584,  -0.04241051]
+
+      intrinsics: # Intrinsic parameters.
+#        [ 367.215, 248.375,  # Principal point [px, py] in [pixel].
+#          458.654, 457.296 ] # Focal length [fx, fy] in [pixel].
+#        [743.4286936207343, 743.5545205462922, 618.7186883884866, 506.7275058699658]
+        [618.7186883884866, 506.7275058699658, 743.4286936207343, 743.5545205462922]
+
+      distortion:
+        type: equidistant                    # Distortion type.
+        parameters: [0.023584346301328347, -0.006764098468377487, 0.010259071387776937,
+                     -0.0037561745737771414]
+
+    - type: CAMERA
+      name: MT9M034-1
+      model: MT9M034
+      module: Module-0
+      frontend: Frontend-0
+      topic: /cam1/image_raw
+
+      camera_type: PINHOLE # Model type.
+      shutter: GLOBAL # Shutter type.
+
+      rate: 20 # Rate in [Hz].
+
+      resolution: [ 1280, 1024 ] # Resolution in [pixel].
+
+      transformation: # Sensor to body transformation.
+        [ -0.70610676,  0.70808093,  0.00240127,  0.00537368,
+          -0.05688385,  0.0076189,  -0.04243639]
+
+      intrinsics: # Intrinsics parameters.
+#        [739.1654756101043, 739.1438452683457, 625.826167006398, 517.3370973594253]
+        [625.826167006398, 517.3370973594253, 739.1654756101043, 739.1438452683457]
+
+      distortion:
+        type: equidistant                      # Distortion type.
+        parameters: [0.019327620961435945, 0.006784242994724914, -0.008658628531456217,
+                     0.0051893686731546585]
+
+  frontends:
+
+    - type: VISUAL
+      name: Frontend-0
+      backend: Backend-0
+
+      max_queue_size: 20                  # Maximum message queue size.
+      max_num_tracks: 150                 # Maximum number of feature tracks.
+      min_track_separation: 30            # Minimum distance in pixel between tracks.
+      patch_size: 21                      # Patch size (in pixel) to be used in KLT feature tracker.
+      num_pyramid_levels: 3               # Number of pyramid levels to use in tracker.
+      min_track_quality: 0.01             # Minimum feature quality to allow tracking.
+      max_track_error: 0.5                # Maximum allowed pixel error between forward and backward tracking.
+      show_tracks: true                   # Enables visual output of feature tracks.
+
+  # Backends
+  backends:
+
+    - name: Backend-0
+      mode: window                        # Operation mode.
+      suite: ceres                        # Optimizer suite.
+      threads: 1                          # Optimization threads.
+      manifold: se3                       # Optimizable manifold.
+
+      representation: continuous          # Representation type.
+      time_constant: true                 # Sets the state time constant.
+      rotation_constant: false            # Sets the state rotation constant.
+      translation_constant: false         # Sets the state translation constant.
+
+      separation: 0.1                     # Default separation between (motion parametrizing) states.
+      min_separation: 0.05                # Minimum separation between states.
+      max_separation: 1.00                # Maximum separation between states.
+      max_window: 3.0                     # Maximum optimization window size.
