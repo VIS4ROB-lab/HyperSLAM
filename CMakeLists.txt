@@ -1,6 +1,7 @@
 # Check CMake version.
 cmake_minimum_required(VERSION 3.16)
 enable_language(CXX)
+set(CMAKE_CXX_STANDARD 20)
 
 # Includes.
 include(FetchContent)
