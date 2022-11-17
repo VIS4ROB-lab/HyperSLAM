@@ -16,9 +16,9 @@
 #include "hyper/environment/observations/visual.hpp"
 #include "hyper/state/abstract.hpp"
 #include "hyper/state/policies/abstract.hpp"
+#include "hyper/system/components/frontends/visual/MonocularUtilizer.h"
 #include "hyper/variables/groups/se3.hpp"
 #include "hyper/variables/stamped.hpp"
-#include "hyper/system/components/frontends/visual/MonocularUtilizer.hpp"
 
 namespace hyper {
 
@@ -157,9 +157,11 @@ class AbstractOptimizer {
   std::set<AbstractStamped<Scalar>*, std::less<>> active_state_variables_; ///< Active state variables.
   // Monocular
   bool InitializationState_ = true; ///<Initialization state.
-//  std::unique_ptr<VisualTracks> prev_message;      ///<Store previous message for monocular triangulation.
-  std::unique_ptr<VisualTracks> prev_message;
-  auto process(const VisualTracksInit& message) -> void;
+//  Manifold prev_Tw0_;
+//  std::vector<Bearing<Scalar>> prev_B0_;
+////  std::unique_ptr<VisualTracks> prev_message;      ///<Store previous message for monocular triangulation.
+//  std::unique_ptr<VisualTracks> prev_message;
+//  auto process(const VisualTracksInit& message) -> void;
 
 };
 

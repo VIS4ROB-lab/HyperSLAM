@@ -3,9 +3,6 @@
 //
 
 #include "hyper/system/components/frontends/visual/Initializer.hpp"
-#include "hyper/system/components/frontends/visual/MonocularUtilizer.hpp"
-
-
 #include<thread>
 
 namespace hyper
@@ -32,39 +29,139 @@ static void SeedRandOnce(int seed)
 
 }
 
-Initializer::Initializer(const Frame &ReferenceFrame, float sigma, int iterations)
+//Initializer::Initializer(const Frame &ReferenceFrame, float sigma, int iterations)
+//{
+//  mK = ReferenceFrame.mK.clone();
+//
+//  mvKeys1 = ReferenceFrame.mvKeys;
+//
+//  mSigma = sigma;
+//  mSigma2 = sigma*sigma;
+//  mMaxIterations = iterations;
+//}
+//
+//bool Initializer::Initialize(const Frame &CurrentFrame, const std::vector<int> &vMatches12, cv::Mat &R21, cv::Mat &t21,
+//    std::vector<cv::Point3f> &vP3D, std::vector<bool> &vbTriangulated)
+//{
+//  // Fill structures with current keypoints and matches with reference frame
+//  // Reference Frame: 1, Current Frame: 2
+//  mvKeys2 = CurrentFrame.mvKeys;
+//
+//  mvMatches12.clear();
+//  mvMatches12.reserve(mvKeys2.size());
+//  mvbMatched1.resize(mvKeys1.size());
+//  for(size_t i=0, iend=vMatches12.size();i<iend; i++)
+//  {
+//    if(vMatches12[i]>=0)
+//    {
+//      mvMatches12.push_back(std::make_pair(i,vMatches12[i]));
+//      mvbMatched1[i]=true;
+//    }
+//    else
+//      mvbMatched1[i]=false;
+//  }
+//
+//  const int N = mvMatches12.size();
+//
+//  // Indices for minimum set selection
+//  std::vector<size_t> vAllIndices;
+//  vAllIndices.reserve(N);
+//  std::vector<size_t> vAvailableIndices;
+//
+//  for(int i=0; i<N; i++)
+//  {
+//    vAllIndices.push_back(i);
+//  }
+//
+//  // Generate sets of 8 points for each RANSAC iteration
+//  mvSets = std::vector< std::vector<size_t> >(mMaxIterations,std::vector<size_t>(8,0));
+//
+//  SeedRandOnce(0);
+//
+//  for(int it=0; it<mMaxIterations; it++)
+//  {
+//    vAvailableIndices = vAllIndices;
+//
+//    // Select a minimum set
+//    for(size_t j=0; j<8; j++)
+//    {
+//      int randi = RandomInt(0,vAvailableIndices.size()-1);
+//      int idx = vAvailableIndices[randi];
+//
+//      mvSets[it][j] = idx;
+//
+//      vAvailableIndices[randi] = vAvailableIndices.back();
+//      vAvailableIndices.pop_back();
+//    }
+//  }
+//
+//  // Launch threads to compute in parallel a fundamental matrix and a homography
+//  std::vector<bool> vbMatchesInliersH, vbMatchesInliersF;
+//  float SH, SF;
+//  cv::Mat H, F;
+//
+//  std::thread threadH(&Initializer::FindHomography,this,ref(vbMatchesInliersH), std::ref(SH), std::ref(H));
+//  std::thread threadF(&Initializer::FindFundamental,this,ref(vbMatchesInliersF), std::ref(SF), std::ref(F));
+//
+//  // Wait until both threads have finished
+//  threadH.join();
+//  threadF.join();
+//
+//  // Compute ratio of scores
+//  float RH = SH/(SH+SF);
+//
+//  // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
+//  if(RH>0.40)
+//    return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
+//  else //if(pF_HF>0.6)
+//    return ReconstructF(vbMatchesInliersF,F,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
+//
+//  return false;
+//}
+
+Initializer::Initializer(cv::Mat K, float sigma, int iterations)
 {
-  mK = ReferenceFrame.mK.clone();
-
-  mvKeys1 = ReferenceFrame.mvKeys;
-
+  mK = K.clone();
   mSigma = sigma;
   mSigma2 = sigma*sigma;
   mMaxIterations = iterations;
 }
 
-bool Initializer::Initialize(const Frame &CurrentFrame, const std::vector<int> &vMatches12, cv::Mat &R21, cv::Mat &t21,
+bool Initializer::Initialize(
+    std::vector<cv::Point2f> &Points1, std::vector<cv::Point2f> &Points2,
+    cv::Mat &R21, cv::Mat &t21,
     std::vector<cv::Point3f> &vP3D, std::vector<bool> &vbTriangulated)
 {
   // Fill structures with current keypoints and matches with reference frame
   // Reference Frame: 1, Current Frame: 2
-  mvKeys2 = CurrentFrame.mvKeys;
+//  mvKeys2 = CurrentFrame.mvKeys;
 
-  mvMatches12.clear();
-  mvMatches12.reserve(mvKeys2.size());
-  mvbMatched1.resize(mvKeys1.size());
-  for(size_t i=0, iend=vMatches12.size();i<iend; i++)
-  {
-    if(vMatches12[i]>=0)
-    {
-      mvMatches12.push_back(std::make_pair(i,vMatches12[i]));
-      mvbMatched1[i]=true;
-    }
-    else
-      mvbMatched1[i]=false;
+//  mvMatches12.clear();
+//  mvMatches12.reserve(mvKeys2.size());
+////  mvbMatched1.resize(mvKeys1.size());
+//  for(size_t i=0, iend=vMatches12.size();i<iend; i++)
+//  {
+//    if(vMatches12[i]>=0)
+//    {
+//      mvMatches12.push_back(std::make_pair(i,vMatches12[i]));
+////      mvbMatched1[i]=true;
+//    }
+//    else
+////      mvbMatched1[i]=false;
+//  }
+
+  // initialize keypoints
+  const int N = Points1.size();
+  mvKeys1.reserve(N);
+  mvKeys2.reserve(N);
+  for(int i=0; i<N; i++){
+    cv::KeyPoint kp1, kp2;
+    kp1.pt = Points1[i];
+    kp2.pt = Points2[i];
+    mvKeys1.push_back(kp1);
+    mvKeys2.push_back(kp2);
+    mvMatches12.push_back(std::make_pair(i,i));
   }
-
-  const int N = mvMatches12.size();
 
   // Indices for minimum set selection
   std::vector<size_t> vAllIndices;
@@ -103,16 +200,19 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const std::vector<int> &
   float SH, SF;
   cv::Mat H, F;
 
-  std::thread threadH(&Initializer::FindHomography,this,ref(vbMatchesInliersH), std::ref(SH), std::ref(H));
-  std::thread threadF(&Initializer::FindFundamental,this,ref(vbMatchesInliersF), std::ref(SF), std::ref(F));
+//  std::thread threadH(&Initializer::FindHomography,this,ref(vbMatchesInliersH), std::ref(SH), std::ref(H));
+//  std::thread threadF(&Initializer::FindFundamental,this,ref(vbMatchesInliersF), std::ref(SF), std::ref(F));
+//
+//  // Wait until both threads have finished
+//  threadH.join();
+//  threadF.join();
+  FindHomography(vbMatchesInliersH, SH, H);
+  FindFundamental(vbMatchesInliersF, SF, F);
 
-  // Wait until both threads have finished
-  threadH.join();
-  threadF.join();
 
   // Compute ratio of scores
   float RH = SH/(SH+SF);
-
+//  std::cout<<"[CHECK] score: "<<"SH: "<<SH<<"SF: "<<SF<<"RH: "<<RH<<std::endl;
   // Try to reconstruct from homography or fundamental depending on the ratio (0.40-0.45)
   if(RH>0.40)
     return ReconstructH(vbMatchesInliersH,H,mK,R21,t21,vP3D,vbTriangulated,1.0,50);
@@ -121,7 +221,6 @@ bool Initializer::Initialize(const Frame &CurrentFrame, const std::vector<int> &
 
   return false;
 }
-
 
 void Initializer::FindHomography(std::vector<bool> &vbMatchesInliers, float &score, cv::Mat &H21)
 {
@@ -348,6 +447,7 @@ float Initializer::CheckHomography(const cv::Mat &H21, const cv::Mat &H12, std::
     const float u2 = kp2.pt.x;
     const float v2 = kp2.pt.y;
 
+
     // Reprojection error in first image
     // x2in1 = H12*x2
 
@@ -567,7 +667,7 @@ bool Initializer::ReconstructF(std::vector<bool> &vbMatchesInliers, cv::Mat &F21
       return true;
     }
   }
-
+  std::cout<<R21<<std::endl;
   return false;
 }
 
@@ -703,7 +803,7 @@ bool Initializer::ReconstructH(std::vector<bool> &vbMatchesInliers, cv::Mat &H21
     std::vector<cv::Point3f> vP3Di;
     std::vector<bool> vbTriangulatedi;
     int nGood = CheckRT(vR[i],vt[i],mvKeys1,mvKeys2,mvMatches12,vbMatchesInliers,K,vP3Di, 4.0*mSigma2, vbTriangulatedi, parallaxi);
-
+    std::cout<<"[CHECK] ReconstructH nGood: "<<nGood<<std::endl;
     if(nGood>bestGood)
     {
       secondBestGood = bestGood;
@@ -719,14 +819,16 @@ bool Initializer::ReconstructH(std::vector<bool> &vbMatchesInliers, cv::Mat &H21
     }
   }
 
-
-  if(secondBestGood<0.75*bestGood && bestParallax>=minParallax && bestGood>minTriangulated && bestGood>0.9*N)
+//  std::cout<<"[CHECK] ReconstructH secondBestGood: "<<secondBestGood<<"bestGood: "<<bestGood<<"bestParallax: "<<bestParallax<<"minParallax: "<<minParallax<<"minTriangulated: "<<minTriangulated<<std::endl;
+  std::cout<<"[CHECK] ReconstructH condition1: "<<(secondBestGood<0.95*bestGood)<<"condition2: "<<(bestParallax>=minParallax)<<"condition3: "<<(bestGood>minTriangulated)<<"condition4: "<<(bestGood>0.3*N)<<std::endl;
+//  if(secondBestGood<0.75*bestGood && bestParallax>=minParallax && bestGood>minTriangulated && bestGood>0.9*N)
+  if(secondBestGood<=bestGood && bestParallax>=minParallax && bestGood>minTriangulated && bestGood>0.3*N)
   {
+    std::cout<<"[CHECK] ReconstructH condition1: "<<(secondBestGood<0.95*bestGood)<<"condition2: "<<(bestParallax>=minParallax)<<"condition3: "<<(bestGood>minTriangulated)<<"condition4: "<<(bestGood>0.3*N)<<std::endl;
     vR[bestSolutionIdx].copyTo(R21);
     vt[bestSolutionIdx].copyTo(t21);
     vP3D = bestP3D;
     vbTriangulated = bestTriangulated;
-
     return true;
   }
 
@@ -829,8 +931,10 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const std::vector<c
 
   int nGood=0;
 
+  std::cout<<"[CHECK] vMatches12 size"<<vMatches12.size()<<std::endl;
   for(size_t i=0, iend=vMatches12.size();i<iend;i++)
   {
+
     if(!vbMatchesInliers[i])
       continue;
 
@@ -839,6 +943,7 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const std::vector<c
     cv::Mat p3dC1;
 
     Triangulate(kp1,kp2,P1,P2,p3dC1);
+//    std::cout<<"[CHECK] CheckRT p3dC1: "<<p3dC1<<std::endl;
 
     if(!isfinite(p3dC1.at<float>(0)) || !isfinite(p3dC1.at<float>(1)) || !isfinite(p3dC1.at<float>(2)))
     {
@@ -856,25 +961,32 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const std::vector<c
     float cosParallax = normal1.dot(normal2)/(dist1*dist2);
 
     // Check depth in front of first camera (only if enough parallax, as "infinite" points can easily go to negative depth)
-    if(p3dC1.at<float>(2)<=0 && cosParallax<0.99998)
+    if(p3dC1.at<float>(2)<=0 && cosParallax<0.99998){
+//      std::cout<<"[CHECK] CheckRT first camera "<<std::endl;
       continue;
+    }
+
 
     // Check depth in front of second camera (only if enough parallax, as "infinite" points can easily go to negative depth)
     cv::Mat p3dC2 = R*p3dC1+t;
 
-    if(p3dC2.at<float>(2)<=0 && cosParallax<0.99998)
+    if(p3dC2.at<float>(2)<=0 && cosParallax<0.99998){
+//      std::cout<<"[CHECK] CheckRT second camera "<<std::endl;
       continue;
+    }
 
     // Check reprojection error in first image
     float im1x, im1y;
     float invZ1 = 1.0/p3dC1.at<float>(2);
     im1x = fx*p3dC1.at<float>(0)*invZ1+cx;
     im1y = fy*p3dC1.at<float>(1)*invZ1+cy;
-
+//    std::cout<<"[CHECK] CheckRT squareError1 "<<"im1x: "<<im1x<<"im1y: "<<im1y<<"kp1x: "<<kp1.pt.x<<"kp1y: "<<kp1.pt.y<<std::endl;
     float squareError1 = (im1x-kp1.pt.x)*(im1x-kp1.pt.x)+(im1y-kp1.pt.y)*(im1y-kp1.pt.y);
 
-    if(squareError1>th2)
+    if(squareError1>th2){
+      std::cout<<"[CHECK] CheckRT squareError1 "<<squareError1<<std::endl;
       continue;
+    }
 
     // Check reprojection error in second image
     float im2x, im2y;
@@ -884,8 +996,10 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const std::vector<c
 
     float squareError2 = (im2x-kp2.pt.x)*(im2x-kp2.pt.x)+(im2y-kp2.pt.y)*(im2y-kp2.pt.y);
 
-    if(squareError2>th2)
+    if(squareError2>th2){
+      std::cout<<"[CHECK] CheckRT squareError2 "<<std::endl;
       continue;
+    }
 
     vCosParallax.push_back(cosParallax);
     vP3D[vMatches12[i].first] = cv::Point3f(p3dC1.at<float>(0),p3dC1.at<float>(1),p3dC1.at<float>(2));

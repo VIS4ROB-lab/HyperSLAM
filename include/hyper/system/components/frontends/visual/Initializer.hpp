@@ -5,14 +5,14 @@
 #pragma once
 
 
-#include <stdio.h>      /* printf, NULL */
-#include <stdlib.h>     /* srand, rand */
-#include <time.h>       /* time */
+#include <cstdio>      /* printf, NULL */
+#include <cstdlib>     /* srand, rand */
+#include <ctime>       /* time */
 #include<opencv2/opencv.hpp>
 
 #include "hyper/messages/visual.hpp"
 #include "hyper/system/components/frontends/abstract.hpp"
-//#include "hyper/system/components/frontends/visual/tracking.hpp"
+//#include "hyper/system/components/frontends/visual/MonocularUtilizer.h"
 
 namespace hyper
 {
@@ -28,11 +28,16 @@ class Initializer
  public:
 
   // Fix the reference frame
-  Initializer(const Frame &ReferenceFrame, float sigma = 1.0, int iterations = 200);
+//  Initializer(const Frame &ReferenceFrame, float sigma = 1.0, int iterations = 200);
+  Initializer(cv::Mat K, float sigma, int iterations);
 
   // Computes in parallel a fundamental matrix and a homography
   // Selects a model and tries to recover the motion and the structure from motion
-  bool Initialize(const Frame &CurrentFrame, const std::vector<int> &vMatches12, cv::Mat &R21, cv::Mat &t21,
+//  bool Initialize(const Frame &CurrentFrame, const std::vector<int> &vMatches12, cv::Mat &R21, cv::Mat &t21,
+//      std::vector<cv::Point3f> &vP3D, std::vector<bool> &vbTriangulated);
+  bool Initialize(
+      std::vector<cv::Point2f> &Points1, std::vector<cv::Point2f> &Points2,
+      cv::Mat &R21, cv::Mat &t21,
       std::vector<cv::Point3f> &vP3D, std::vector<bool> &vbTriangulated);
 
 
@@ -73,7 +78,7 @@ class Initializer
 
   // Current Matches from Reference to Current
   std::vector<Match> mvMatches12;
-  std::vector<bool> mvbMatched1;
+//  std::vector<bool> mvbMatched1;
 
   // Calibration
   cv::Mat mK;
