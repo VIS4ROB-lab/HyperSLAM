@@ -46,32 +46,32 @@ System:
         parameters: [0.023584346301328347, -0.006764098468377487, 0.010259071387776937,
                      -0.0037561745737771414]
 
-    - type: CAMERA
-      name: MT9M034-1
-      model: MT9M034
-      module: Module-0
-      frontend: Frontend-0
-      topic: /cam1/image_raw
-
-      camera_type: PINHOLE # Model type.
-      shutter: GLOBAL # Shutter type.
-
-      rate: 20 # Rate in [Hz].
-
-      resolution: [ 1280, 1024 ] # Resolution in [pixel].
-
-      transformation: # Sensor to body transformation.
-        [ -0.70610676,  0.70808093,  0.00240127,  0.00537368,
-          -0.05688385,  0.0076189,  -0.04243639]
-
-      intrinsics: # Intrinsics parameters.
-#        [739.1654756101043, 739.1438452683457, 625.826167006398, 517.3370973594253]
-        [625.826167006398, 517.3370973594253, 739.1654756101043, 739.1438452683457]
-
-      distortion:
-        type: equidistant                      # Distortion type.
-        parameters: [0.019327620961435945, 0.006784242994724914, -0.008658628531456217,
-                     0.0051893686731546585]
+#    - type: CAMERA
+#      name: MT9M034-1
+#      model: MT9M034
+#      module: Module-0
+#      frontend: Frontend-0
+#      topic: /cam1/image_raw
+#
+#      camera_type: PINHOLE # Model type.
+#      shutter: GLOBAL # Shutter type.
+#
+#      rate: 20 # Rate in [Hz].
+#
+#      resolution: [ 1280, 1024 ] # Resolution in [pixel].
+#
+#      transformation: # Sensor to body transformation.
+#        [ -0.70610676,  0.70808093,  0.00240127,  0.00537368,
+#          -0.05688385,  0.0076189,  -0.04243639]
+#
+#      intrinsics: # Intrinsics parameters.
+##        [739.1654756101043, 739.1438452683457, 625.826167006398, 517.3370973594253]
+#        [625.826167006398, 517.3370973594253, 739.1654756101043, 739.1438452683457]
+#
+#      distortion:
+#        type: equidistant                      # Distortion type.
+#        parameters: [0.019327620961435945, 0.006784242994724914, -0.008658628531456217,
+#                     0.0051893686731546585]
 
   frontends:
 
@@ -87,6 +87,7 @@ System:
       min_track_quality: 0.01             # Minimum feature quality to allow tracking.
       max_track_error: 0.5                # Maximum allowed pixel error between forward and backward tracking.
       show_tracks: true                   # Enables visual output of feature tracks.
+      min_num_tracks: 100                  # Minimum number of feature tracks.
 
   # Backends
   backends:

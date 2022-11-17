@@ -44,32 +44,32 @@ System:
         parameters: [ -0.28340811, 0.07395907,     # Radial parameters [k1, k2].
                       1.76187114e-05, 0.00019359 ] # Tangential parameters [p1, p2].
 
-    - type: CAMERA
-      name: MT9M034-1
-      model: MT9M034
-      module: Module-0
-      frontend: Frontend-0
-      topic: /cam1/image_raw
-
-      camera_type: PINHOLE # Model type.
-      shutter: GLOBAL # Shutter type.
-
-      rate: 200 # Rate in [Hz].
-
-      resolution: [ 752, 480 ] # Resolution in [pixel].
-
-      transformation: # Sensor to body transformation.
-        [ -0.002550236745188, 0.015323927487975, 0.702486685782579, 0.711527321918909, # Quaternion [qx, qy, qz, qw].
-          -0.0198435579556, 0.0453689425024, 0.00786212447038 ]                        # Translation [px, py, pz].
-
-      intrinsics: # Intrinsics parameters.
-        [ 379.999, 255.238,  # Principal point [px, py] in [pixel].
-          457.587, 456.134 ] # Focal length [fx, fy] in [pixel].
-
-      distortion:
-        type: radial_tangential                      # Distortion type.
-        parameters: [ -0.28368365,  0.07451284,      # Radial parameters [k1, k2].
-                      -3.55590700e-05, -0.00010473 ] # Tangential parameters [p1, p2].
+#    - type: CAMERA
+#      name: MT9M034-1
+#      model: MT9M034
+#      module: Module-0
+#      frontend: Frontend-0
+#      topic: /cam1/image_raw
+#
+#      camera_type: PINHOLE # Model type.
+#      shutter: GLOBAL # Shutter type.
+#
+#      rate: 200 # Rate in [Hz].
+#
+#      resolution: [ 752, 480 ] # Resolution in [pixel].
+#
+#      transformation: # Sensor to body transformation.
+#        [ -0.002550236745188, 0.015323927487975, 0.702486685782579, 0.711527321918909, # Quaternion [qx, qy, qz, qw].
+#          -0.0198435579556, 0.0453689425024, 0.00786212447038 ]                        # Translation [px, py, pz].
+#
+#      intrinsics: # Intrinsics parameters.
+#        [ 379.999, 255.238,  # Principal point [px, py] in [pixel].
+#          457.587, 456.134 ] # Focal length [fx, fy] in [pixel].
+#
+#      distortion:
+#        type: radial_tangential                      # Distortion type.
+#        parameters: [ -0.28368365,  0.07451284,      # Radial parameters [k1, k2].
+#                      -3.55590700e-05, -0.00010473 ] # Tangential parameters [p1, p2].
 
   frontends:
 
@@ -85,6 +85,7 @@ System:
       min_track_quality: 0.01             # Minimum feature quality to allow tracking.
       max_track_error: 0.5                # Maximum allowed pixel error between forward and backward tracking.
       show_tracks: true                   # Enables visual output of feature tracks.
+      min_num_tracks: 100                  # Minimum number of feature tracks.
 
   # Backends
   backends:
