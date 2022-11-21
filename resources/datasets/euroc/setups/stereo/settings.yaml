@@ -78,14 +78,14 @@ System:
       backend: Backend-0
 
       max_queue_size: 20                  # Maximum message queue size.
-      max_num_tracks: 150                 # Maximum number of feature tracks.
+      max_num_tracks: 200                 # Maximum number of feature tracks.
       min_track_separation: 30            # Minimum distance in pixel between tracks.
       patch_size: 21                      # Patch size (in pixel) to be used in KLT feature tracker.
       num_pyramid_levels: 3               # Number of pyramid levels to use in tracker.
       min_track_quality: 0.01             # Minimum feature quality to allow tracking.
       max_track_error: 0.5                # Maximum allowed pixel error between forward and backward tracking.
       show_tracks: true                   # Enables visual output of feature tracks.
-      min_num_tracks: 100                  # Minimum number of feature tracks.
+      min_num_tracks: 20                  # Minimum number of feature tracks.
 
   # Backends
   backends:

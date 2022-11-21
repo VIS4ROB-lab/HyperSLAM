@@ -16,7 +16,6 @@
 #include "hyper/system/components/backend.hpp"
 #include "hyper/system/components/frontends/visual/klt_mono.hpp"
 #include "hyper/yaml/yaml.hpp"
-#include "matplotlibcpp.h"
 #include "hyper/variables/intrinsics.hpp"
 
 namespace hyper {

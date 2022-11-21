@@ -15,7 +15,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 project(HyperSystem VERSION 22.07.04 DESCRIPTION "" HOMEPAGE_URL https://github.com/VIS4ROB-lab/HyperSLAM LANGUAGES CXX)
 
 # Define libraries and aliases.
-add_library(${PROJECT_NAME} INTERFACE include/hyper/system/components/frontends/visual/Initializer.hpp include/hyper/system/components/frontends/visual/MonocularUtilizer.h internal/hyper/system/components/frontends/visual/Initializer.cpp internal/hyper/system/components/frontends/visual/MonocularUtilizer.cc)
+add_library(${PROJECT_NAME} INTERFACE include/hyper/system/components/frontends/visual/Initializer.hpp internal/hyper/system/components/frontends/visual/Initializer.cpp)
 add_library(Hyper::System ALIAS ${PROJECT_NAME})
 
 # Set properties.
@@ -89,7 +89,6 @@ target_include_directories(
         ${cv_bridge_INCLUDE_DIRS}
         ${OpenCV_INCLUDE_DIRS}
         ${yaml-cpp_INCLUDE_DIRS}
-        ${PROJECT_SOURCE_DIR}/thirdparty/matplotlib/
         /usr/include/python3.8
 )
 
