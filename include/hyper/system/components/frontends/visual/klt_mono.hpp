@@ -8,7 +8,7 @@
 #include "hyper/messages/visual.hpp"
 #include "hyper/system/components/frontends/abstract.hpp"
 #include "hyper/system/components/frontends/visual/Initializer.hpp"
-#include "hyper/system/components/frontends/visual/MonocularUtilizer.h"
+
 
 namespace hyper {
 
@@ -105,11 +105,14 @@ class VisualFrontend final : public AbstractFrontend {
   eTrackingState mState_;
   eSensor mSensor_;
   Size min_num_tracks_;      ///< Minimum number of feature tracks.
+  int max_init_stamps_ = 40;
   Initializer* mpInitializer;
-  int counter_ = 0;
+  int mCounter_ = 0;
+  Queue ref_queue_;
 
 
-  auto MonocularInitialization(VisualTracks& previous_view, VisualTracks& current_view, const Size& min_num_points) -> eTrackingState;
+
+  auto MonocularInitialization(VisualTracks& previous_view, VisualTracks& current_view) -> eTrackingState;
 
 
 };

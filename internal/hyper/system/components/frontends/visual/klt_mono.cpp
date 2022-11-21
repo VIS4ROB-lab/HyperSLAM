@@ -17,6 +17,7 @@
 #include "hyper/system/components/frontends/visual/klt_mono.hpp"
 #include "hyper/yaml/yaml.hpp"
 #include "matplotlibcpp.h"
+#include "hyper/variables/intrinsics.hpp"
 
 namespace hyper {
 
@@ -258,51 +259,109 @@ void VisualFrontend::callback(const Sensor& sensor, const Message& message) {
     return;
   }
 
-
   // Two VisualTracks Received
   // For Monocular: Initialize landmarks
+
   if (mSensor_ == MONOCULAR){
     if (mState_ == NO_IMAGE_YET){
-      mState_ == NOT_INITIALIZED;
+      mCounter_ = 0;
+      mState_ = NOT_INITIALIZED;
     }
+//    if (mState_ == NOT_INITIALIZED){
+//      // wait for enough baseline
+//      if (counter_ < 20){
+//        queue_.erase(current_itr);
+//        counter_ ++;
+////        std::cout<<"[CHECK] counter size: "<<counter_<<"queue size: "<<queue_.size()<<std::endl;
+//        return;
+//      }
+//      std::cout<<"Start MonocularInitialization."<<std::endl;
+//      mState_ = MonocularInitialization(*previous_view, *current_view, min_num_tracks_);
+//      if (mState_ == OK){
+//        std::cout<<"Initialization is OK."<<std::endl;
+//        queue_.erase(previous_itr);
+////        auto temp_ = queue_.extract(current_itr);
+////        auto [queue_itr, inserted] = queue_.try_emplace(temp_.key(), std::move(temp_.mapped()));
+////        backend().submit(std::move(temp_.mapped()));
+//////        return;
+//      }else{
+//        // TODO: If cannot initialized
+//        std::cout<<"Initialization Failed."<<std::endl;
+//        DLOG(FATAL) << "Initialization Failed.";
+//      }
+//      }
+//      else if (mState_ == OK){
+//        // Track points.
+//        const auto mask = trackFeatures(*previous_view, *current_view);
+//        selectFeatures(*previous_view, *current_view, max_num_tracks_, mask);
+//
+//        // Show tracks.
+//          if (show_tracks_) {
+//            showTracks("Feature Tracks", *previous_view, *current_view);
+//          }
+//
+//        // Extract and submit message.
+//        queue_.erase(std::next(previous_itr), current_itr);
+//        backend().submit(std::move(queue_.extract(previous_itr).mapped()));
+//      }
+    // Initialize mask.
+    auto& [temp_I0, _] = previous_view->tracks.begin()->second;
+    Mask mask{temp_I0->image.rows, temp_I0->image.cols, CV_8UC1, cv::Scalar(255)};
     if (mState_ == NOT_INITIALIZED){
       // wait for enough baseline
-      if (counter_ < 20){
-        queue_.erase(current_itr);
-        counter_ ++;
-//        std::cout<<"[CHECK] counter size: "<<counter_<<"queue size: "<<queue_.size()<<std::endl;
-        return;
-      }
-      std::cout<<"Start MonocularInitialization."<<std::endl;
-      mState_ = MonocularInitialization(*previous_view, *current_view, min_num_tracks_);
+      selectFeatures(*previous_view, *current_view, max_num_tracks_, mask);
+      mState_ = MonocularInitialization(*current_view, *previous_view); // Note: change here: current_P0 has identity matrix
       if (mState_ == OK){
         std::cout<<"Initialization is OK."<<std::endl;
+        mCounter_ = 0;
+        // save reference frame
+        auto temp_ = queue_.extract(current_itr);
+        std::tie(queue_itr, inserted) = queue_.try_emplace(temp_.key(), std::move(temp_.mapped()));
+        std::tie(queue_itr, inserted) = ref_queue_.try_emplace(temp_.key(), std::move(temp_.mapped()));
         queue_.erase(previous_itr);
-//        auto temp_ = queue_.extract(current_itr);
-//        auto [queue_itr, inserted] = queue_.try_emplace(temp_.key(), std::move(temp_.mapped()));
-//        backend().submit(std::move(temp_.mapped()));
-////        return;
       }else{
-        // TODO: If cannot initialized
-        std::cout<<"Initialization Failed."<<std::endl;
-        DLOG(FATAL) << "Initialization Failed.";
+        previous_view->tracks.clear();
+        previous_view->identifiers.clear();
+        previous_view->lengths.clear();
+        previous_view->positions.clear();
+        current_view->tracks.clear();
+        current_view->identifiers.clear();
+        current_view->lengths.clear();
+        current_view->positions.clear();
+        if (mCounter_ > max_init_stamps_){ // reinitialize with current frame
+          queue_.erase(previous_itr);
+          return;
+        }else{  // fix previous frame, find next frame
+          mCounter_ ++;
+          queue_.erase(current_itr);
+          return;
+        }
+        std::cout<<mCounter_<<std::endl;
       }
-      }
-      else if (mState_ == OK){
-        // Track points.
-        const auto mask = trackFeatures(*previous_view, *current_view);
-        selectFeatures(*previous_view, *current_view, max_num_tracks_, mask);
-
+    }
+    else  {
+      // Track points.
+      const auto mask = trackFeatures(*previous_view, *current_view);
+      std::cout << "[CHECK] trackfeatures" << std::endl;
+      std::cout << "[CHECK] keypoint num: prev: " << previous_view->lengths.size() << "curr: " << current_view->lengths.size() << std::endl;
+//      if (previous_view->lengths.size() < min_num_tracks_) {
+//        std::cout << "[CHECK] reinitialization" << std::endl;
+//        mState_ = NOT_INITIALIZED;
+//        queue_.erase(current_itr);
+////        return;
+//      } // TODO: rethink this part
+//      else {
         // Show tracks.
-          if (show_tracks_) {
-            showTracks("Feature Tracks", *previous_view, *current_view);
-          }
-
+        if (show_tracks_) {
+          showTracks("Feature Tracks", *previous_view, *current_view);
+        }
         // Extract and submit message.
         queue_.erase(std::next(previous_itr), current_itr);
         backend().submit(std::move(queue_.extract(previous_itr).mapped()));
-      }
+//      }
+    }
   }
+
   else if (mSensor_ == STEREO){
     // Track points.
     const auto mask = trackFeatures(*previous_view, *current_view);
@@ -512,22 +571,28 @@ auto VisualFrontend::trackPoints(const Image& image_0, const Image& image_1, con
     DCHECK(previous_view.lengths.size() == current_view.lengths.size());
   }
 
-auto VisualFrontend::MonocularInitialization(VisualTracks& previous_view, VisualTracks& current_view, const Size& min_num_points) -> eTrackingState {
+auto VisualFrontend::MonocularInitialization(VisualTracks& previous_view, VisualTracks& current_view) -> eTrackingState {
   // Unpack view.
   auto& [current_I0, current_P0] = current_view.tracks.begin()->second;
   auto& [previous_I0, previous_P0] = previous_view.tracks.begin()->second;
 
-  // Find Matchings.
-  Points new_previous_P0;
-  new_previous_P0.reserve(min_num_points);
-  cv::goodFeaturesToTrack(previous_I0->image, new_previous_P0, static_cast<int>(min_num_points), min_track_quality_, min_track_separation_);
-  circularInitialization(previous_view, current_view, new_previous_P0);
-
+//  // Compute maximum number of new points.
+//  const auto num_current_points = current_P0.size();
+//  const auto max_num_new_points = max_num_points - num_current_points;
+//
+//  // Find Matchings.
+//  if (0 < max_num_new_points) {
+//    // Initialize new points.
+//    Points new_previous_P0;
+//    new_previous_P0.reserve(max_num_new_points);
+//    cv::goodFeaturesToTrack(previous_I0->image, new_previous_P0, static_cast<int>(max_num_new_points), min_track_quality_, min_track_separation_);
+//    circularInitialization(previous_view, current_view, new_previous_P0);
+//  }
   // Initialize. (Adapted from ORB-SLAM Initializer->initialize)
   // TODO: get intrinsics
   float intrinsics[9] = {743.4286936207343, 0, 618.7186883884866, 0, 743.5545205462922, 506.7275058699658, 0, 0, 1};
   cv::Mat K = cv::Mat(3, 3, CV_32F, intrinsics);
-  std::cout<<"[CHECK]K: "<<K<<std::endl;
+//  std::cout<<"[CHECK]K: "<<K<<std::endl;
   cv::Mat Rcw;                      // Current Camera Rotation
   cv::Mat tcw;                      // Current Camera Translation
   std::vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)
@@ -538,7 +603,7 @@ auto VisualFrontend::MonocularInitialization(VisualTracks& previous_view, Visual
 
 
   if (mpInitializer->Initialize(previous_P0, current_P0, Rcw, tcw, mvIniP3D, vbTriangulated)) {
-    std::cout<<"[CHECK] R, t :"<<Rcw<<tcw<<std::endl;
+//    std::cout<<"[CHECK] R, t :"<<Rcw<<tcw<<std::endl;
     for (size_t i = 0, iend = previous_P0.size(); i < iend; i++) {
       if (vbTriangulated[i]) { // If triangulated, add to positions
         Position<Scalar> temp(static_cast<Scalar>(mvIniP3D[i].x), static_cast<Scalar>(mvIniP3D[i].y), static_cast<Scalar>(mvIniP3D[i].z));
@@ -553,78 +618,19 @@ auto VisualFrontend::MonocularInitialization(VisualTracks& previous_view, Visual
     std::cout<<"[CHECK] positions added; "<<"position size: "<<current_view.positions.size()<<"keypoint size: "<<current_P0.size()<<"id size: "<<current_view.identifiers.size()<<std::endl;
     DCHECK(current_view.identifiers.size() == current_view.positions.size());
     DCHECK(current_view.identifiers.size() == current_P0.size());
-//    show3Dpoints(current_view.positions);
+    //    show3Dpoints(current_view.positions);
     write2File(current_view.positions);
     return OK;
   }else{
     return NOT_INITIALIZED;
   }
 
+}
+
 
   // TODO: add visualization for 3D points
 
 
 
-//  if (!mpInitializer) {
-//    // Set Reference Frame
-//    if (mCurrentFrame.mvKeys.size() > 100) {
-//      mInitialFrame = Frame(mCurrentFrame);
-//      mLastFrame = Frame(mCurrentFrame);
-//      mInitialCamera = mCurrentCamera;
-//      mvbPrevMatched.resize(mCurrentFrame.mvKeys.size()); // no mcurrentframe.mvkeys here at initial stamp
-//      for (size_t i = 0; i < mCurrentFrame.mvKeys.size(); i++)
-//        mvbPrevMatched[i] = mCurrentFrame.mvKeys[i].pt;
-//
-//      if (mpInitializer)
-//        delete mpInitializer;
-//
-//      mpInitializer = new Initializer(mCurrentFrame, 1.0, 200);
-//
-//      fill(mvIniMatches.begin(), mvIniMatches.end(), -1);
-//
-//      return;
-//    }
-//  } else {
-//    // Try to initialize
-//    if ((int)mCurrentFrame.mvKeys.size() <= 100) {
-//      delete mpInitializer;
-//      mpInitializer = static_cast<Initializer*>(NULL);
-//      fill(mvIniMatches.begin(), mvIniMatches.end(), -1);
-//      return;
-//    }
-//
-//    // Find correspondences
-//    int nmatches = SearchForInitialization(mInitialFrame, mCurrentFrame, mvbPrevMatched, mvIniMatches);
-//
-//    // Check if there are enough correspondences
-//    if (nmatches < 100) {
-//      delete mpInitializer;
-//      mpInitializer = static_cast<Initializer*>(NULL);
-//      return;
-//    }
-//
-//    cv::Mat Rcw;                      // Current Camera Rotation
-//    cv::Mat tcw;                      // Current Camera Translation
-//    std::vector<bool> vbTriangulated; // Triangulated Correspondences (mvIniMatches)
-//
-//    if (mpInitializer->Initialize(mCurrentFrame, mvIniMatches, Rcw, tcw, mvIniP3D, vbTriangulated)) {
-//      for (size_t i = 0, iend = mvIniMatches.size(); i < iend; i++) {
-//        if (mvIniMatches[i] >= 0 && !vbTriangulated[i]) {
-//          mvIniMatches[i] = -1;
-//          nmatches--;
-//        }
-//      }
-//
-//      // Set Frame Poses
-//      mInitialFrame.SetPose(cv::Mat::eye(4, 4, CV_32F));
-//      cv::Mat Tcw = cv::Mat::eye(4, 4, CV_32F);
-//      Rcw.copyTo(Tcw.rowRange(0, 3).colRange(0, 3));
-//      tcw.copyTo(Tcw.rowRange(0, 3).col(3));
-//      mCurrentFrame.SetPose(Tcw);
-//
-//      CreateInitialMapMonocular();
-//    }
-//  }
-}
 
 } // namespace hyper

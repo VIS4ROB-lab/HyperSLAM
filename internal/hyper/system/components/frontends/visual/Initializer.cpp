@@ -16,7 +16,7 @@ static bool m_already_seeded = false;
 int RandomInt(int min, int max){
   int d = max - min + 1;
   return int(((double)rand()/((double)RAND_MAX + 1.0)) * d) + min;
-};
+}
 
 static void SeedRandOnce(int seed)
 {
@@ -667,7 +667,7 @@ bool Initializer::ReconstructF(std::vector<bool> &vbMatchesInliers, cv::Mat &F21
       return true;
     }
   }
-  std::cout<<R21<<std::endl;
+//  std::cout<<R21<<std::endl;
   return false;
 }
 
@@ -803,7 +803,7 @@ bool Initializer::ReconstructH(std::vector<bool> &vbMatchesInliers, cv::Mat &H21
     std::vector<cv::Point3f> vP3Di;
     std::vector<bool> vbTriangulatedi;
     int nGood = CheckRT(vR[i],vt[i],mvKeys1,mvKeys2,mvMatches12,vbMatchesInliers,K,vP3Di, 4.0*mSigma2, vbTriangulatedi, parallaxi);
-    std::cout<<"[CHECK] ReconstructH nGood: "<<nGood<<std::endl;
+//    std::cout<<"[CHECK] ReconstructH nGood: "<<nGood<<std::endl;
     if(nGood>bestGood)
     {
       secondBestGood = bestGood;
@@ -820,11 +820,9 @@ bool Initializer::ReconstructH(std::vector<bool> &vbMatchesInliers, cv::Mat &H21
   }
 
 //  std::cout<<"[CHECK] ReconstructH secondBestGood: "<<secondBestGood<<"bestGood: "<<bestGood<<"bestParallax: "<<bestParallax<<"minParallax: "<<minParallax<<"minTriangulated: "<<minTriangulated<<std::endl;
-  std::cout<<"[CHECK] ReconstructH condition1: "<<(secondBestGood<0.95*bestGood)<<"condition2: "<<(bestParallax>=minParallax)<<"condition3: "<<(bestGood>minTriangulated)<<"condition4: "<<(bestGood>0.3*N)<<std::endl;
-//  if(secondBestGood<0.75*bestGood && bestParallax>=minParallax && bestGood>minTriangulated && bestGood>0.9*N)
-  if(secondBestGood<=bestGood && bestParallax>=minParallax && bestGood>minTriangulated && bestGood>0.3*N)
+//  std::cout<<"[CHECK] ReconstructH condition1: "<<(secondBestGood<0.95*bestGood)<<"condition2: "<<(bestParallax>=minParallax)<<"condition3: "<<(bestGood>minTriangulated)<<"condition4: "<<(bestGood>0.3*N)<<std::endl;
+  if(secondBestGood<0.75*bestGood && bestParallax>=minParallax && bestGood>minTriangulated && bestGood>0.9*N)
   {
-    std::cout<<"[CHECK] ReconstructH condition1: "<<(secondBestGood<0.95*bestGood)<<"condition2: "<<(bestParallax>=minParallax)<<"condition3: "<<(bestGood>minTriangulated)<<"condition4: "<<(bestGood>0.3*N)<<std::endl;
     vR[bestSolutionIdx].copyTo(R21);
     vt[bestSolutionIdx].copyTo(t21);
     vP3D = bestP3D;
@@ -931,7 +929,7 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const std::vector<c
 
   int nGood=0;
 
-  std::cout<<"[CHECK] vMatches12 size"<<vMatches12.size()<<std::endl;
+//  std::cout<<"[CHECK] vMatches12 size"<<vMatches12.size()<<std::endl;
   for(size_t i=0, iend=vMatches12.size();i<iend;i++)
   {
 
@@ -984,7 +982,7 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const std::vector<c
     float squareError1 = (im1x-kp1.pt.x)*(im1x-kp1.pt.x)+(im1y-kp1.pt.y)*(im1y-kp1.pt.y);
 
     if(squareError1>th2){
-      std::cout<<"[CHECK] CheckRT squareError1 "<<squareError1<<std::endl;
+//      std::cout<<"[CHECK] CheckRT squareError1 "<<squareError1<<std::endl;
       continue;
     }
 
@@ -997,7 +995,7 @@ int Initializer::CheckRT(const cv::Mat &R, const cv::Mat &t, const std::vector<c
     float squareError2 = (im2x-kp2.pt.x)*(im2x-kp2.pt.x)+(im2y-kp2.pt.y)*(im2y-kp2.pt.y);
 
     if(squareError2>th2){
-      std::cout<<"[CHECK] CheckRT squareError2 "<<std::endl;
+//      std::cout<<"[CHECK] CheckRT squareError2 "<<std::endl;
       continue;
     }
 

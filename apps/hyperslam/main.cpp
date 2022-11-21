@@ -65,10 +65,8 @@ auto Shutdown(int sig) -> void {
           // Wait on backend.
           auto lock = backend->wait();
           const auto& optimizer = backend->optimizer();
-          std::cout<<"get optimizer ptr"<<std::endl;
 
           if (optimizer) {
-            std::cout<<"come into the optimizer if loop"<<std::endl;
             // Write estimates.
             constexpr auto kRate = 100;
             constexpr auto kValueIndex = 0;
@@ -80,13 +78,10 @@ auto Shutdown(int sig) -> void {
 
               // Write estimate.
               const auto stamp = optimizer->root() + sample;
-              std::cout<<std::scientific << stamp << ", " << result.derivatives[kValueIndex].transpose().format(kFormat) <<std::endl;
 
               estimation_file << std::scientific << stamp << ", " << result.derivatives[kValueIndex].transpose().format(kFormat) << "\n";
             }
-            std::cout<<"whye"<<std::endl;
           }
-          std::cout<<"whye"<<std::endl;
 
           // Close output file.
           estimation_file.close();

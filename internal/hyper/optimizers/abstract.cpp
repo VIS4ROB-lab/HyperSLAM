@@ -11,7 +11,6 @@
 #include "hyper/sensors/imu.hpp"
 #include "hyper/state/interpolators/basis.hpp"
 #include "hyper/state/policies/se3.hpp"
-#include "hyper/system/components/frontends/visual/MonocularUtilizer.h"
 #include "hyper/variables/intrinsics.hpp"
 #include "hyper/yaml/yaml.hpp"
 
@@ -354,6 +353,7 @@ auto AbstractOptimizer::process(const VisualTracks& message) -> void {
     }
   }
   else if (num_cameras == 1) {
+
     // Unpack cameras.
     const auto& C0 = message.sensor();
 //    const auto& C1 = (message.tracks.cbegin()->first == &C0) ? *message.tracks.crbegin()->first : *message.tracks.cbegin()->first;
@@ -364,9 +364,11 @@ auto AbstractOptimizer::process(const VisualTracks& message) -> void {
     // Compute relative transformation.
     const auto q_S_wb = StateQuery{stamp};
     const auto S_wb = state().evaluate(q_S_wb);
-    const auto T_w0 = S_wb.derivativeAs<Manifold>(0).groupPlus(C0.transformation());
-//    const auto T_01 = C0.transformation().groupInverse().groupPlus(C1.transformation());
 
+
+    const auto T_w0 = S_wb.derivativeAs<Manifold>(0).groupPlus(C0.transformation());  // Note: send the previous frame but not current frame
+//    const auto T_01 = C0.transformation().groupInverse().groupPlus(C1.transformation());
+    std::cout<<"backend 2"<<std::endl;
     // Convert points to pixels.
     std::vector<Pixel<Scalar>> PX0;
     PX0.reserve(P0.size());
@@ -403,7 +405,6 @@ auto AbstractOptimizer::process(const VisualTracks& message) -> void {
       add(observation_0);
       add(observation_1);
     } */
-
     for (auto i = std::size_t{0}; i < message.identifiers.size(); ++i) {
       // Create observations.
       const auto identifier = message.identifiers[i];
@@ -414,13 +415,7 @@ auto AbstractOptimizer::process(const VisualTracks& message) -> void {
       Position<Scalar> p_i;
       if (inserted_0) {
         auto& landmark = observation_0.landmark();
-        if (InitializationState_){
-          p_i = message.positions[i];
-//        }else{
-//          const auto T_01 = prev_Tw0_.groupInverse().groupPlus(S_wb.derivativeAs<Manifold>(0));
-//          p_i = Camera::Triangulate(T_01, prev_B0_[i], B0[i]);
-//        }
-
+        p_i = message.positions[i];
         landmark.variable() = T_w0.vectorPlus(p_i); // TODO: Apply threshold to determine validity of triangulation.
         addLandmark(landmark);
       }
@@ -429,10 +424,8 @@ auto AbstractOptimizer::process(const VisualTracks& message) -> void {
       add(observation_0);
 //      add(observation_1);
     }
-    InitializationState_ = false;
 //    prev_Tw0_ = S_wb.derivativeAs<Manifold>(0);
 //    prev_B0_ = B0;
-  }
   }
   else {
     LOG(FATAL) << "Unsupported camera configuration.";
