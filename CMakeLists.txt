@@ -1,6 +1,7 @@
 # Check CMake version.
 cmake_minimum_required(VERSION 3.16)
 enable_language(CXX)
+set(CMAKE_CXX_STANDARD 20)
 
 # Includes.
 include(FetchContent)
@@ -14,7 +15,7 @@ set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_SOURCE_DIR}/bin")
 project(HyperSystem VERSION 22.07.04 DESCRIPTION "" HOMEPAGE_URL https://github.com/VIS4ROB-lab/HyperSLAM LANGUAGES CXX)
 
 # Define libraries and aliases.
-add_library(${PROJECT_NAME} INTERFACE)
+add_library(${PROJECT_NAME} INTERFACE include/hyper/system/components/frontends/visual/Initializer.hpp internal/hyper/system/components/frontends/visual/Initializer.cpp)
 add_library(Hyper::System ALIAS ${PROJECT_NAME})
 
 # Set properties.
@@ -88,6 +89,7 @@ target_include_directories(
         ${cv_bridge_INCLUDE_DIRS}
         ${OpenCV_INCLUDE_DIRS}
         ${yaml-cpp_INCLUDE_DIRS}
+        /usr/include/python3.8
 )
 
 # Add sources.
@@ -106,6 +108,7 @@ target_link_libraries(
         ${OpenCV_LIBRARIES}
         ${yaml-cpp_LIBRARIES}
         Ceres::ceres
+
 )
 
 # Compile HyperSLAM.

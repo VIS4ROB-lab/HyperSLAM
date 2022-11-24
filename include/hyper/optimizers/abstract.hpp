@@ -29,6 +29,8 @@ class AbstractOptimizer {
   using Range = hyper::Range<Stamp, BoundaryPolicy::LOWER_INCLUSIVE_ONLY>;
   using Window = hyper::Range<Stamp, BoundaryPolicy::LOWER_INCLUSIVE_ONLY>;
 
+
+
   /// Default destructor.
   virtual ~AbstractOptimizer() = default;
 
@@ -152,6 +154,14 @@ class AbstractOptimizer {
 
   std::set<AbstractLandmark*, std::less<>> active_landmarks_;              ///< Active landmarks.
   std::set<AbstractStamped<Scalar>*, std::less<>> active_state_variables_; ///< Active state variables.
+  // Monocular
+//  bool InitializationState_ = true; ///<Initialization state.
+//  Manifold prev_Tw0_;
+//  std::vector<Bearing<Scalar>> prev_B0_;
+////  std::unique_ptr<VisualTracks> prev_message;      ///<Store previous message for monocular triangulation.
+//  std::unique_ptr<VisualTracks> prev_message;
+//  auto process(const VisualTracksInit& message) -> void;
+
 };
 
 } // namespace hyper

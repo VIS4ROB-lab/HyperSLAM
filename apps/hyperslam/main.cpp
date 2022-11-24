@@ -55,11 +55,13 @@ auto Shutdown(int sig) -> void {
           constexpr auto kPrecision = 20;
           std::ofstream estimation_file;
           estimation_file.open(cluster.output_directory / "estimation.hyper");
+          std::cout<<"estimation.hyper created"<<std::endl;
           estimation_file.precision(kPrecision);
 
           // Define output format.
           static const auto kFormat = Eigen::IOFormat{kPrecision, Eigen::DontAlignCols, ", ", "\n"};
 
+          std::cout<<"wait backend"<<std::endl;
           // Wait on backend.
           auto lock = backend->wait();
           const auto& optimizer = backend->optimizer();
@@ -76,6 +78,7 @@ auto Shutdown(int sig) -> void {
 
               // Write estimate.
               const auto stamp = optimizer->root() + sample;
+
               estimation_file << std::scientific << stamp << ", " << result.derivatives[kValueIndex].transpose().format(kFormat) << "\n";
             }
           }
@@ -91,6 +94,7 @@ auto Shutdown(int sig) -> void {
 
     // ROS shutdown.
     ros::requestShutdown();
+    std::cout<<"ros shutdown"<<std::endl;
 
   } else {
     LOG(FATAL) << "Unknown interrupt signal.";

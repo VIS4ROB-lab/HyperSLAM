@@ -5,8 +5,9 @@
 #include "hyper/sensors/camera.hpp"
 #include "hyper/sensors/imu.hpp"
 #include "hyper/system/components/frontends/inertial/direct.hpp"
-#include "hyper/system/components/frontends/visual/klt.hpp"
-
+//#include "hyper/system/components/frontends/visual/klt.hpp"
+//#include "hyper/system/components/frontends/visual/tracking.hpp"
+#include "hyper/system/components/frontends/visual/klt_mono.hpp"
 namespace hyper {
 
 namespace {

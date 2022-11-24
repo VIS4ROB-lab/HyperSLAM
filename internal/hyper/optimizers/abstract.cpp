@@ -71,6 +71,7 @@ auto AbstractOptimizer::state() const -> const AbstractState& {
   return *state_;
 }
 
+
 auto AbstractOptimizer::submit(std::unique_ptr<AbstractMessage>&& message) -> void {
   // Initialize state.
   if (!state_) {
@@ -146,6 +147,10 @@ auto AbstractOptimizer::submit(std::unique_ptr<AbstractMessage>&& message) -> vo
   }
 }
 
+Stamp stamp_;
+Camera camera_;
+
+
 AbstractOptimizer::AbstractOptimizer(const YAML::Node& yaml_node)
     : root_stamp_{kDefaultRootStamp},
       separation_{kDefaultSeparation},
@@ -154,6 +159,7 @@ AbstractOptimizer::AbstractOptimizer(const YAML::Node& yaml_node)
       environment_{nullptr},
       landmarks_{},
       state_{nullptr},
+//      prev_message{nullptr},
       variables_{} {
   if (!yaml_node.IsNull()) {
     separation_ = yaml::ReadAs<Stamp>(yaml_node, kSeparationName);
@@ -174,7 +180,11 @@ auto AbstractOptimizer::process(const AbstractMessage& message) -> void {
   const auto index = std::type_index{typeid(message)};
   if (index == typeid(VisualTracks)) {
     process(static_cast<const VisualTracks&>(message)); // NOLINT
-  } else if (index == typeid(InertialMeasurement<Manifold>)) {
+  }
+//  else if (index == typeid(VisualTracksInit)) {
+//    process(static_cast<const VisualTracksInit&>(message)); // NOLINT
+//  }
+  else if (index == typeid(InertialMeasurement<Manifold>)) {
     process(static_cast<const InertialMeasurement<Manifold>&>(message)); // NOLINT
   } else if (index == typeid(ManifoldMeasurement<Manifold>)) {
     process(static_cast<const ManifoldMeasurement<Manifold>&>(message)); // NOLINT
@@ -183,11 +193,94 @@ auto AbstractOptimizer::process(const AbstractMessage& message) -> void {
   }
 }
 
+//auto AbstractOptimizer::process(const VisualTracksInit& message) -> void {
+//  // C0, C1 need to be calculated by initialization
+//
+//  const auto& initial_track = message.initial_track;
+//  const auto& current_track = message.current_track;
+//  // Unpack cameras.
+//  const auto& C0 = initial_track->sensor();
+//  const auto& C1 = current_track->sensor();
+//  const auto& [I0, P0] = initial_track->getTrack(C0);
+//  const auto& [I1, P1] = current_track->getTrack(C1);
+//  DCHECK(hasSensor(C0) && hasSensor(C1));
+//
+//  // Compute relative transformation.
+//  const auto q_S_wb = StateQuery{initial_track->stamp()};
+//  const auto S_wb = state().evaluate(q_S_wb);
+//  const auto T_w0 = S_wb.derivativeAs<Manifold>(0).groupPlus(C0.transformation());
+////  const auto T_01 = C0.transformation().groupInverse().groupPlus(C1.transformation());
+//  const auto T_01 = message.initial_pose->groupPlus(message.current_pose->groupInverse());
+//
+//
+//  // Convert points to pixels.
+//  std::vector<Pixel<Scalar>> PX0;
+//  PX0.reserve(P0.size());
+//  std::transform(P0.cbegin(), P0.cend(), std::back_inserter(PX0), [](const auto& p) -> Pixel<Scalar> { return {p.x, p.y}; });
+//  DCHECK_EQ(P0.size(), PX0.size());
+//
+//  std::vector<Pixel<Scalar>> PX1;
+//  PX1.reserve(P1.size());
+//  std::transform(P1.cbegin(), P1.cend(), std::back_inserter(PX1), [](const auto& p) -> Pixel<Scalar> { return {p.x, p.y}; });
+//  DCHECK_EQ(P1.size(), PX1.size());
+//
+//  // Correct shutter stamps.
+//  // const auto T0 = C0.correctShutterStamps(stamp, PX0);
+//  // const auto T1 = C1.correctShutterStamps(stamp, PX1);
+//
+//  // Convert pixel to bearings.
+//  const auto B0 = C0.convertPixelsToBearings(PX0);
+//  const auto B1 = C1.convertPixelsToBearings(PX1);
+//
+//  /* for (auto i = std::size_t{0}; i < message.identifiers.size(); ++i) {
+//    // Create observations.
+//    auto [observation_0, inserted] = mutableEnvironment().addPixelMeasurement(message.identifiers[i], {stamp, C0, PX0[i]});
+//    auto [observation_1, _] = mutableEnvironment().addPixelMeasurement(message.identifiers[i], {stamp, C1, PX1[i]});
+//
+//    // Triangulate if new landmark.
+//    if (inserted) {
+//      auto& landmark = observation_0.landmark();
+//      const auto p_i = Camera::Triangulate(T_01, B0[i], B1[i]);
+//      landmark.value() = T_w0.vectorPlus(p_i); // TODO: Apply threshold to determine validity of triangulation.
+//      addLandmark(landmark);
+//    }
+//
+//    // Add pixel observations.
+//    add(observation_0);
+//    add(observation_1);
+//  } */
+//
+//  for (auto i = std::size_t{0}; i < current_track->identifiers.size(); ++i) {
+//    // Create observations.
+//    const auto identifier = current_track->identifiers[i];
+//    auto [observation_0, inserted_0] = mutableEnvironment().addVisualMeasurement(identifier, BearingMeasurement{initial_track->stamp(), C0, B0[i]});
+//    auto [observation_1, inserted_1] = mutableEnvironment().addVisualMeasurement(identifier, BearingMeasurement{current_track->stamp(), C1, B1[i]});
+//
+//    // Triangulate if new landmark.
+//    if (inserted_0) {
+//      auto& landmark = observation_0.landmark();
+//      const auto p_i = Camera::Triangulate(T_01, B0[i], B1[i]);
+//      landmark.variable() = T_w0.vectorPlus(p_i); // TODO: Apply threshold to determine validity of triangulation.
+//      addLandmark(landmark);
+//    }
+//
+//    // Add bearing observations.
+//    add(observation_0);
+//    add(observation_1);
+//}
+////      prev_message = std::make_unique<VisualTracks>(current_track->stamp(), current_track->sensor());
+//      prev_message = std::make_unique<VisualTracks>(current_track->stamp(), current_track->sensor());
+//      prev_message->identifiers = current_track->identifiers;
+//      prev_message->tracks = current_track->tracks;
+//      prev_message->lengths = current_track->lengths;
+//      InitializationState_ = false;
+//}
+
 auto AbstractOptimizer::process(const VisualTracks& message) -> void {
   // Process individual views.
   DCHECK(environment_ != nullptr);
-  const auto& stamp = message.stamp();
   const auto num_cameras = message.tracks.size();
+  const auto& stamp = message.stamp();
 
   if (num_cameras == 2) {
     // Unpack cameras.
@@ -258,7 +351,83 @@ auto AbstractOptimizer::process(const VisualTracks& message) -> void {
       add(observation_0);
       add(observation_1);
     }
-  } else {
+  }
+  else if (num_cameras == 1) {
+
+    // Unpack cameras.
+    const auto& C0 = message.sensor();
+//    const auto& C1 = (message.tracks.cbegin()->first == &C0) ? *message.tracks.crbegin()->first : *message.tracks.cbegin()->first;
+    const auto& [I0, P0] = message.getTrack(C0);
+//    const auto& [I1, P1] = message.getTrack(C1);
+    DCHECK(hasSensor(C0));
+
+    // Compute relative transformation.
+    const auto q_S_wb = StateQuery{stamp};
+    const auto S_wb = state().evaluate(q_S_wb);
+
+
+    const auto T_w0 = S_wb.derivativeAs<Manifold>(0).groupPlus(C0.transformation());  // Note: send the previous frame but not current frame
+//    const auto T_01 = C0.transformation().groupInverse().groupPlus(C1.transformation());
+    std::cout<<"backend 2"<<std::endl;
+    // Convert points to pixels.
+    std::vector<Pixel<Scalar>> PX0;
+    PX0.reserve(P0.size());
+    std::transform(P0.cbegin(), P0.cend(), std::back_inserter(PX0), [](const auto& p) -> Pixel<Scalar> { return {p.x, p.y}; });
+    DCHECK_EQ(P0.size(), PX0.size());
+
+//    std::vector<Pixel<Scalar>> PX1;
+//    PX1.reserve(P1.size());
+//    std::transform(P1.cbegin(), P1.cend(), std::back_inserter(PX1), [](const auto& p) -> Pixel<Scalar> { return {p.x, p.y}; });
+//    DCHECK_EQ(P1.size(), PX1.size());
+
+    // Correct shutter stamps.
+    // const auto T0 = C0.correctShutterStamps(stamp, PX0);
+    // const auto T1 = C1.correctShutterStamps(stamp, PX1);
+
+    // Convert pixel to bearings.
+    const auto B0 = C0.convertPixelsToBearings(PX0);
+//    const auto B1 = C1.convertPixelsToBearings(PX1);
+
+    /* for (auto i = std::size_t{0}; i < message.identifiers.size(); ++i) {
+      // Create observations.
+      auto [observation_0, inserted] = mutableEnvironment().addPixelMeasurement(message.identifiers[i], {stamp, C0, PX0[i]});
+      auto [observation_1, _] = mutableEnvironment().addPixelMeasurement(message.identifiers[i], {stamp, C1, PX1[i]});
+
+      // Triangulate if new landmark.
+      if (inserted) {
+        auto& landmark = observation_0.landmark();
+        const auto p_i = Camera::Triangulate(T_01, B0[i], B1[i]);
+        landmark.value() = T_w0.vectorPlus(p_i); // TODO: Apply threshold to determine validity of triangulation.
+        addLandmark(landmark);
+      }
+
+      // Add pixel observations.
+      add(observation_0);
+      add(observation_1);
+    } */
+    for (auto i = std::size_t{0}; i < message.identifiers.size(); ++i) {
+      // Create observations.
+      const auto identifier = message.identifiers[i];
+      auto [observation_0, inserted_0] = mutableEnvironment().addVisualMeasurement(identifier, BearingMeasurement{stamp, C0, B0[i]});
+//      auto [observation_1, inserted_1] = mutableEnvironment().addVisualMeasurement(identifier, BearingMeasurement{stamp, C1, B1[i]});
+
+      // Triangulate if new landmark.
+      Position<Scalar> p_i;
+      if (inserted_0) {
+        auto& landmark = observation_0.landmark();
+        p_i = message.positions[i];
+        landmark.variable() = T_w0.vectorPlus(p_i); // TODO: Apply threshold to determine validity of triangulation.
+        addLandmark(landmark);
+      }
+
+      // Add bearing observations.
+      add(observation_0);
+//      add(observation_1);
+    }
+//    prev_Tw0_ = S_wb.derivativeAs<Manifold>(0);
+//    prev_B0_ = B0;
+  }
+  else {
     LOG(FATAL) << "Unsupported camera configuration.";
   }
 }

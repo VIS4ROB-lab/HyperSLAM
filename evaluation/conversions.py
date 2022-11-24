@@ -4,6 +4,7 @@ from argparse import ArgumentParser
 
 def convert_hyper_to_tum_format(input, output):
     data = np.loadtxt(input, delimiter=",")
+    print(len(data))
     data = data[:, [0, 5, 6, 7, 1, 2, 3, 4]]
     np.savetxt(output, data, fmt='%.20e')
 

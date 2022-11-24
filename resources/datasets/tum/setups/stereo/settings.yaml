@@ -27,22 +27,24 @@ System:
       camera_type: PINHOLE # Model type.
       shutter: GLOBAL # Shutter type.
 
-      rate: 200 # Rate in [Hz].
+      rate: 20 # Rate in [Hz].
 
-      resolution: [ 752, 480 ] # Resolution in [pixel].
+      resolution: [ 1280, 1024 ] # Resolution in [pixel].
 
       transformation: # Sensor to body transformation.
-        [ -0.007707179755532, 0.010499323370595, 0.701752800292141, 0.712301460668946, # Quaternion [qx, qy, qz, qw].
-          -0.0216401454975, -0.064676986768, 0.00981073058949 ]                        # Translation [px, py, pz].
+        [-7.04978703e-01,  7.09212068e-01, -4.16328531e-04,  4.80592069e-03,
+         0.05250868,  0.0077584,  -0.04241051]
 
       intrinsics: # Intrinsic parameters.
-        [ 367.215, 248.375,  # Principal point [px, py] in [pixel].
-          458.654, 457.296 ] # Focal length [fx, fy] in [pixel].
+#        [ 367.215, 248.375,  # Principal point [px, py] in [pixel].
+#          458.654, 457.296 ] # Focal length [fx, fy] in [pixel].
+#        [743.4286936207343, 743.5545205462922, 618.7186883884866, 506.7275058699658]
+        [618.7186883884866, 506.7275058699658, 743.4286936207343, 743.5545205462922]
 
       distortion:
-        type: radial_tangential                    # Distortion type.
-        parameters: [ -0.28340811, 0.07395907,     # Radial parameters [k1, k2].
-                      1.76187114e-05, 0.00019359 ] # Tangential parameters [p1, p2].
+        type: equidistant                    # Distortion type.
+        parameters: [0.023584346301328347, -0.006764098468377487, 0.010259071387776937,
+                     -0.0037561745737771414]
 
 #    - type: CAMERA
 #      name: MT9M034-1
@@ -54,22 +56,22 @@ System:
 #      camera_type: PINHOLE # Model type.
 #      shutter: GLOBAL # Shutter type.
 #
-#      rate: 200 # Rate in [Hz].
+#      rate: 20 # Rate in [Hz].
 #
-#      resolution: [ 752, 480 ] # Resolution in [pixel].
+#      resolution: [ 1280, 1024 ] # Resolution in [pixel].
 #
 #      transformation: # Sensor to body transformation.
-#        [ -0.002550236745188, 0.015323927487975, 0.702486685782579, 0.711527321918909, # Quaternion [qx, qy, qz, qw].
-#          -0.0198435579556, 0.0453689425024, 0.00786212447038 ]                        # Translation [px, py, pz].
+#        [ -0.70610676,  0.70808093,  0.00240127,  0.00537368,
+#          -0.05688385,  0.0076189,  -0.04243639]
 #
 #      intrinsics: # Intrinsics parameters.
-#        [ 379.999, 255.238,  # Principal point [px, py] in [pixel].
-#          457.587, 456.134 ] # Focal length [fx, fy] in [pixel].
+##        [739.1654756101043, 739.1438452683457, 625.826167006398, 517.3370973594253]
+#        [625.826167006398, 517.3370973594253, 739.1654756101043, 739.1438452683457]
 #
 #      distortion:
-#        type: radial_tangential                      # Distortion type.
-#        parameters: [ -0.28368365,  0.07451284,      # Radial parameters [k1, k2].
-#                      -3.55590700e-05, -0.00010473 ] # Tangential parameters [p1, p2].
+#        type: equidistant                      # Distortion type.
+#        parameters: [0.019327620961435945, 0.006784242994724914, -0.008658628531456217,
+#                     0.0051893686731546585]
 
   frontends:
 
@@ -85,7 +87,7 @@ System:
       min_track_quality: 0.01             # Minimum feature quality to allow tracking.
       max_track_error: 0.5                # Maximum allowed pixel error between forward and backward tracking.
       show_tracks: true                   # Enables visual output of feature tracks.
-      min_num_tracks: 20                  # Minimum number of feature tracks.
+      min_num_tracks: 50                  # Minimum number of feature tracks.
 
   # Backends
   backends:
