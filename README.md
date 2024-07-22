@@ -1,25 +1,3 @@
-[contributors-shield]: https://img.shields.io/github/contributors/VIS4ROB-lab/HyperSLAM.svg?style=for-the-badge
-[contributors-url]: https://github.com/VIS4ROB-lab/HyperSLAM/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/VIS4ROB-lab/HyperSLAM.svg?style=for-the-badge
-[forks-url]: https://github.com/VIS4ROB-lab/HyperSLAM/network/members
-[stars-shield]: https://img.shields.io/github/stars/VIS4ROB-lab/HyperSLAM.svg?style=for-the-badge
-[stars-url]: https://github.com/VIS4ROB-lab/HyperSLAM/stargazers
-[issues-shield]: https://img.shields.io/github/issues/VIS4ROB-lab/HyperSLAM.svg?style=for-the-badge
-[issues-url]: https://github.com/VIS4ROB-lab/HyperSLAM/issues
-[license-shield]: https://img.shields.io/github/license/VIS4ROB-lab/HyperSLAM.svg?style=for-the-badge
-[license-url]: https://github.com/VIS4ROB-lab/HyperSLAM/blob/main/LICENSE
-[linkedin-shield]: https://img.shields.io/badge/-LinkedIn-black.svg?style=for-the-badge&logo=linkedin&colorB=555
-[linkedin-url]: https://linkedin.com/in/davidhug
-
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![BSD-3-Clause License][license-shield]][license-url]
-[![LinkedIn][linkedin-shield]][linkedin-url]
-
-<br />
-<br />
 <div align="center">
   <a href="https://github.com/VIS4ROB-lab/HyperSLAM">
     <img src="https://drive.google.com/uc?export=view&id=1UAFr3tepqKwdnTomhKaeI2eIag3HOISY" alt="" style="width: 150px;">
@@ -44,13 +22,9 @@ on continuous-time representations (*i.e.* B-Splines) and formulates the continu
 problem as an online, sliding window, Non-Linear-Least-Squares (NLLS) optimization based on the
 [Ceres](http://ceres-solver.org/) solver.
 
-***Important Note:*** The current *Hyper*Release is to be considered as an open-sourced beta version
-of the developed software stack, which will be further refined and updated over the upcoming weeks
-and months. In particular, several extensions with respect to the integration of inertial
-measurements, simulation capabilities and other refinements in the optimizer are scheduled to
-be released after further testing. If you are interested in obtaining the original/exact software
-stack used for our publication "Continuous-Time Stereo-Inertial Odometry" (which would only be
-provided as is), or are open to potential collaborations, please feel free to personally contact us.
+***Note:*** Development on HyperSLAM-related repositories has been discontinued.
+If you are interested in obtaining the original software stack related to our publication
+"Continuous-Time Stereo-Inertial Odometry" (provided as is), please feel free to contact us.
 
 If you use the *Hyper*SLAM ecosystem, please cite it as below.
 
